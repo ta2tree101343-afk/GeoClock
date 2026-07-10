@@ -1,7 +1,7 @@
 {
 	"name": "geoclock",
 	"private": true,
-	"main": "./index.ts",
+	"main": "expo-router/entry",
 	"scripts": {
 		"start": "expo start",
 		"ios": "expo start --ios",
@@ -14,8 +14,14 @@
 	},
 	"dependencies": {
 		"expo": "^57.0.4",
+		"expo-constants": "~57.0.3",
+		"expo-linking": "~57.0.2",
+		"expo-router": "~57.0.4",
+		"expo-status-bar": "~57.0.0",
 		"react": "^19.2.7",
-		"react-native": "^0.86.0"
+		"react-native": "^0.86.0",
+		"react-native-safe-area-context": "~5.7.0",
+		"react-native-screens": "4.25.2"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.3",
