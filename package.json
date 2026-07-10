@@ -18,7 +18,9 @@
 		"expo-linking": "~57.0.2",
 		"expo-router": "~57.0.4",
 		"expo-status-bar": "~57.0.0",
+		"jotai": "^2.20.1",
 		"react": "^19.2.7",
+		"react-error-boundary": "^6.1.2",
 		"react-native": "^0.86.0",
 		"react-native-safe-area-context": "~5.7.0",
 		"react-native-screens": "4.25.2"
