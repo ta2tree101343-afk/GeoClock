@@ -1,8 +1,19 @@
+import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { Provider, useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { authStateAtom, restoreSessionAction } from "../src/features/auth/stores";
+import "../src/features/geofence/tasks";
 import { LoadingView } from "../src/shared/ui/LoadingView";
+
+Notifications.setNotificationHandler({
+	handleNotification: async () => ({
+		shouldShowBanner: true,
+		shouldShowList: true,
+		shouldPlaySound: false,
+		shouldSetBadge: false,
+	}),
+});
 
 function AuthGate({ children }: { children: React.ReactNode }) {
 	const state = useAtomValue(authStateAtom);

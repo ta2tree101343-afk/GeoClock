@@ -9,10 +9,20 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.geoclock.app"
+      "bundleIdentifier": "com.geoclock.app",
+      "infoPlist": {
+        "UIBackgroundModes": ["location", "fetch"]
+      }
     },
     "android": {
-      "package": "com.geoclock.app"
+      "package": "com.geoclock.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro"
@@ -24,9 +34,13 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "現在地と勤務地の位置関係を表示するために使用します"
+          "locationAlwaysAndWhenInUsePermission": "勤務地への出退勤を自動記録するため、バックグラウンドでの位置情報の使用を許可してください",
+          "locationWhenInUsePermission": "現在地と勤務地の位置関係を表示するために使用します",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
         }
-      ]
+      ],
+      "expo-notifications"
     ]
   }
 }

@@ -43,6 +43,32 @@ export function requestForegroundPermission(): ResultAsync<
 	).map(({ status }) => toLocationPermissionStatus(status));
 }
 
+export function getBackgroundPermissionStatus(): ResultAsync<
+	LocationPermissionStatus,
+	LocationError
+> {
+	return ResultAsync.fromPromise(
+		Location.getBackgroundPermissionsAsync(),
+		(e) =>
+			new LocationError("バックグラウンドパーミッション取得に失敗しました", {
+				cause: e,
+			}),
+	).map(({ status }) => toLocationPermissionStatus(status));
+}
+
+export function requestBackgroundPermission(): ResultAsync<
+	LocationPermissionStatus,
+	LocationError
+> {
+	return ResultAsync.fromPromise(
+		Location.requestBackgroundPermissionsAsync(),
+		(e) =>
+			new LocationError("バックグラウンドパーミッション要求に失敗しました", {
+				cause: e,
+			}),
+	).map(({ status }) => toLocationPermissionStatus(status));
+}
+
 export function getCurrentLocation(): ResultAsync<Coordinate, LocationError> {
 	return ResultAsync.fromPromise(
 		Location.getCurrentPositionAsync({
