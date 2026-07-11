@@ -4,7 +4,10 @@ import { Provider, useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { authStateAtom, restoreSessionAction } from "../src/features/auth/stores";
 import "../src/features/geofence/tasks";
+import { configureAmplify } from "../src/shared/lib/amplify";
 import { LoadingView } from "../src/shared/ui/LoadingView";
+
+configureAmplify();
 
 Notifications.setNotificationHandler({
 	handleNotification: async () => ({

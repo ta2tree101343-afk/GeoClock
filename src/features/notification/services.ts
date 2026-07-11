@@ -9,11 +9,11 @@ function toStatus(
 	status: Notifications.PermissionStatus,
 ): NotificationPermissionStatus {
 	switch (status) {
-		case "granted":
+		case Notifications.PermissionStatus.GRANTED:
 			return "granted";
-		case "denied":
+		case Notifications.PermissionStatus.DENIED:
 			return "denied";
-		case "undetermined":
+		case Notifications.PermissionStatus.UNDETERMINED:
 			return "undetermined";
 		default: {
 			const _exhaustiveCheck: never = status;
