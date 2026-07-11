@@ -23,9 +23,7 @@ async function resolveGeofenceName(
 ): Promise<string> {
 	const result = await fetchGeofences(workerId);
 	if (result.isErr()) return identifier;
-	return (
-		result.value.find((g) => g.id === identifier)?.name ?? identifier
-	);
+	return result.value.find((g) => g.id === identifier)?.name ?? identifier;
 }
 
 TaskManager.defineTask<GeofenceTaskData>(

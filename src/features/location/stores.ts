@@ -8,9 +8,8 @@ import {
 } from "./services";
 import type { Coordinate, LocationPermissionStatus } from "./types";
 
-export const locationPermissionStatusAtom = atom<LocationPermissionStatus>(
-	"undetermined",
-);
+export const locationPermissionStatusAtom =
+	atom<LocationPermissionStatus>("undetermined");
 
 export const backgroundLocationPermissionStatusAtom =
 	atom<LocationPermissionStatus>("undetermined");

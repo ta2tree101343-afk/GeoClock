@@ -1,8 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type {
-	LastEventByGeofence,
-	LocationEventType,
-} from "./types";
+import type { LastEventByGeofence, LocationEventType } from "./types";
 
 export const STORAGE_KEY_LAST_EVENTS = "geoclock:lastEventsByGeofence:v1";
 

@@ -1,46 +1,46 @@
 {
-  "expo": {
-    "name": "GeoClock",
-    "slug": "geoclock",
-    "scheme": "geoclock",
-    "version": "0.1.0",
-    "orientation": "portrait",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": false,
-      "bundleIdentifier": "com.geoclock.app",
-      "infoPlist": {
-        "UIBackgroundModes": ["location", "fetch"]
-      }
-    },
-    "android": {
-      "package": "com.geoclock.app",
-      "permissions": [
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_BACKGROUND_LOCATION",
-        "FOREGROUND_SERVICE",
-        "FOREGROUND_SERVICE_LOCATION"
-      ]
-    },
-    "web": {
-      "bundler": "metro"
-    },
-    "plugins": [
-      "expo-router",
-      "expo-status-bar",
-      "expo-maps",
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "勤務地への出退勤を自動記録するため、バックグラウンドでの位置情報の使用を許可してください",
-          "locationWhenInUsePermission": "現在地と勤務地の位置関係を表示するために使用します",
-          "isIosBackgroundLocationEnabled": true,
-          "isAndroidBackgroundLocationEnabled": true
-        }
-      ],
-      "expo-notifications"
-    ]
-  }
+	"expo": {
+		"name": "GeoClock",
+		"slug": "geoclock",
+		"scheme": "geoclock",
+		"version": "0.1.0",
+		"orientation": "portrait",
+		"userInterfaceStyle": "automatic",
+		"newArchEnabled": true,
+		"ios": {
+			"supportsTablet": false,
+			"bundleIdentifier": "com.geoclock.app",
+			"infoPlist": {
+				"UIBackgroundModes": ["location", "fetch"]
+			}
+		},
+		"android": {
+			"package": "com.geoclock.app",
+			"permissions": [
+				"ACCESS_FINE_LOCATION",
+				"ACCESS_COARSE_LOCATION",
+				"ACCESS_BACKGROUND_LOCATION",
+				"FOREGROUND_SERVICE",
+				"FOREGROUND_SERVICE_LOCATION"
+			]
+		},
+		"web": {
+			"bundler": "metro"
+		},
+		"plugins": [
+			"expo-router",
+			"expo-status-bar",
+			"expo-maps",
+			[
+				"expo-location",
+				{
+					"locationAlwaysAndWhenInUsePermission": "勤務地への出退勤を自動記録するため、バックグラウンドでの位置情報の使用を許可してください",
+					"locationWhenInUsePermission": "現在地と勤務地の位置関係を表示するために使用します",
+					"isIosBackgroundLocationEnabled": true,
+					"isAndroidBackgroundLocationEnabled": true
+				}
+			],
+			"expo-notifications"
+		]
+	}
 }

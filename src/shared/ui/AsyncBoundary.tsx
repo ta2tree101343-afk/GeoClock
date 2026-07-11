@@ -1,8 +1,5 @@
 import { Suspense, type ReactNode } from "react";
-import {
-	ErrorBoundary,
-	type FallbackProps,
-} from "react-error-boundary";
+import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import { ErrorView } from "./ErrorView";
 import { LoadingView } from "./LoadingView";
 

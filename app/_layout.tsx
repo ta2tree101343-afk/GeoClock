@@ -4,7 +4,10 @@ import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { Provider, useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
-import { authStateAtom, restoreSessionAction } from "../src/features/auth/stores";
+import {
+	authStateAtom,
+	restoreSessionAction,
+} from "../src/features/auth/stores";
 import "../src/features/geofence/tasks";
 import { configureAmplify } from "../src/shared/lib/amplify";
 import { LoadingView } from "../src/shared/ui/LoadingView";
