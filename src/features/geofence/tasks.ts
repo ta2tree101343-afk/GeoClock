@@ -1,7 +1,9 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
 import { recordEvent } from "../location-event/services";
 import { sendLocalNotification } from "../notification/services";
+import { STORAGE_KEY_CURRENT_WORKER_ID } from "../worker/stores";
 import { fetchGeofences } from "./services";
 
 export const GEOFENCE_TASK_NAME = "geoclock-geofence-task";
@@ -16,6 +18,10 @@ type GeofenceTaskData = {
 		radius: number;
 	};
 };
+
+async function readCurrentWorkerId(): Promise<string | null> {
+	return AsyncStorage.getItem(STORAGE_KEY_CURRENT_WORKER_ID);
+}
 
 async function resolveGeofenceName(
 	identifier: string,
@@ -39,10 +45,24 @@ TaskManager.defineTask<GeofenceTaskData>(
 		const type =
 			eventType === Location.GeofencingEventType.Enter ? "in" : "out";
 
-		await recordEvent(region.identifier, type);
+		const workerId = await readCurrentWorkerId();
+		if (workerId == null) {
+			console.warn(
+				"[geofence-task] currentWorkerId is missing; skip recording",
+			);
+			return;
+		}
+
+		await recordEvent({
+			workerId,
+			geofenceId: region.identifier,
+			type,
+			latitude: region.latitude,
+			longitude: region.longitude,
+		});
 
 		const label = type === "in" ? "出勤" : "退勤";
-		const name = await resolveGeofenceName(region.identifier, "stub-user-id");
+		const name = await resolveGeofenceName(region.identifier, workerId);
 		await sendLocalNotification(`${label}しました`, `勤務地: ${name}`);
 	},
 );
