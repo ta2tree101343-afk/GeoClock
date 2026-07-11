@@ -1,37 +1,42 @@
-import { okAsync, type ResultAsync } from "neverthrow";
-import type { Geofence, GeofenceFetchError } from "./types";
+import { ResultAsync } from "neverthrow";
+import { client } from "../../shared/lib/amplify";
+import { type Geofence, GeofenceFetchError } from "./types";
 
-/**
- * スタブ実装。将来 Amplify Data に差し替える。
- * 3 勤務地（新宿現場A / 渋谷現場B / 池袋現場C）を返す。
- */
 export function fetchGeofences(
-	_workerId: string,
+	workerId: string,
 ): ResultAsync<Geofence[], GeofenceFetchError> {
-	return okAsync([
-		{
-			id: "geo-shinjuku-a",
-			name: "新宿現場A",
-			latitude: 35.6895,
-			longitude: 139.6917,
-			radius: 100,
-			address: "東京都新宿区西新宿",
-		},
-		{
-			id: "geo-shibuya-b",
-			name: "渋谷現場B",
-			latitude: 35.6595,
-			longitude: 139.7005,
-			radius: 100,
-			address: "東京都渋谷区道玄坂",
-		},
-		{
-			id: "geo-ikebukuro-c",
-			name: "池袋現場C",
-			latitude: 35.7295,
-			longitude: 139.7109,
-			radius: 100,
-			address: "東京都豊島区南池袋",
-		},
-	]);
+	return ResultAsync.fromPromise(
+		fetchGeofencesRaw(workerId),
+		(e) => new GeofenceFetchError("勤務地の取得に失敗しました", { cause: e }),
+	);
+}
+
+async function fetchGeofencesRaw(workerId: string): Promise<Geofence[]> {
+	const { data: links, errors } =
+		await client.models.WorkerGeofence.listWorkerGeofenceByWorkerId({
+			workerId,
+		});
+	if (errors && errors.length > 0) {
+		throw new Error(errors.map((e) => e.message).join(", "));
+	}
+
+	const geofenceResults = await Promise.all(
+		links.map((link) => client.models.Geofence.get({ id: link.geofenceId })),
+	);
+
+	const geofences: Geofence[] = [];
+	for (const result of geofenceResults) {
+		if (result.errors && result.errors.length > 0) continue;
+		const g = result.data;
+		if (g == null) continue;
+		geofences.push({
+			id: g.id,
+			name: g.name,
+			latitude: g.latitude,
+			longitude: g.longitude,
+			radius: g.radius,
+			address: g.address ?? null,
+		});
+	}
+	return geofences;
 }
