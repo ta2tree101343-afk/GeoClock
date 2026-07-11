@@ -51,3 +51,11 @@ Thumbs.db
 
 # Test
 coverage/
+
+# amplify
+.amplify
+amplify_outputs*
+amplifyconfiguration*
+
+# Claude Code session artifacts
+.claude/
