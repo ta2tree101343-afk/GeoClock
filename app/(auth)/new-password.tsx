@@ -1,12 +1,6 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { useState } from "react";
-import {
-	Pressable,
-	StyleSheet,
-	Text,
-	TextInput,
-	View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import {
 	authStateAtom,
 	completeNewPasswordAction,
@@ -19,7 +13,10 @@ export default function NewPasswordScreen() {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [localError, setLocalError] = useState<string | null>(null);
 
-	if (state.status !== "needsNewPassword" && state.status !== "authenticating") {
+	if (
+		state.status !== "needsNewPassword" &&
+		state.status !== "authenticating"
+	) {
 		return null;
 	}
 

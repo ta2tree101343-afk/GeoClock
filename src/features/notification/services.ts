@@ -1,9 +1,6 @@
 import * as Notifications from "expo-notifications";
 import { ResultAsync } from "neverthrow";
-import {
-	NotificationError,
-	type NotificationPermissionStatus,
-} from "./types";
+import { NotificationError, type NotificationPermissionStatus } from "./types";
 
 function toStatus(
 	status: Notifications.PermissionStatus,

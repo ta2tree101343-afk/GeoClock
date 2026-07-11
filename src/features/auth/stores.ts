@@ -24,7 +24,11 @@ export const restoreSessionAction = atom(null, async (_get, set) => {
 
 export const signInAction = atom(
 	null,
-	async (_get, set, { email, password }: { email: string; password: string }) => {
+	async (
+		_get,
+		set,
+		{ email, password }: { email: string; password: string },
+	) => {
 		set(authStateAtom, { status: "authenticating" });
 		const result = await signIn(email, password);
 		if (result.isErr()) {
@@ -50,7 +54,11 @@ export const signInAction = atom(
 
 export const completeNewPasswordAction = atom(
 	null,
-	async (_get, set, { email, newPassword }: { email: string; newPassword: string }) => {
+	async (
+		_get,
+		set,
+		{ email, newPassword }: { email: string; newPassword: string },
+	) => {
 		set(authStateAtom, { status: "authenticating" });
 		const result = await completeNewPassword(email, newPassword);
 		if (result.isErr()) {

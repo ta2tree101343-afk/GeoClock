@@ -1,13 +1,7 @@
 import { Link } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useState } from "react";
-import {
-	Pressable,
-	StyleSheet,
-	Text,
-	TextInput,
-	View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { signInAction, authStateAtom } from "../../src/features/auth/stores";
 
 export default function LoginScreen() {
@@ -17,8 +11,7 @@ export default function LoginScreen() {
 	const [password, setPassword] = useState("");
 
 	const isSubmitting = state.status === "authenticating";
-	const errorMessage =
-		state.status === "error" ? state.error.message : null;
+	const errorMessage = state.status === "error" ? state.error.message : null;
 
 	return (
 		<View style={styles.container}>

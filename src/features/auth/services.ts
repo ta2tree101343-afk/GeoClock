@@ -1,9 +1,5 @@
 import { errAsync, okAsync, type ResultAsync } from "neverthrow";
-import {
-	AuthError,
-	type AuthUser,
-	InvalidCredentialsError,
-} from "./types";
+import { AuthError, type AuthUser, InvalidCredentialsError } from "./types";
 
 /**
  * スタブ実装。将来 Amplify Auth に差し替える。
@@ -36,7 +32,9 @@ export function signIn(
 		});
 	}
 	return errAsync(
-		new InvalidCredentialsError("メールアドレスまたはパスワードが正しくありません"),
+		new InvalidCredentialsError(
+			"メールアドレスまたはパスワードが正しくありません",
+		),
 	);
 }
 

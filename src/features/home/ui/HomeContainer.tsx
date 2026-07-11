@@ -36,9 +36,7 @@ export function HomeContainer() {
 	const backgroundPermission = useAtomValue(
 		backgroundLocationPermissionStatusAtom,
 	);
-	const notificationPermission = useAtomValue(
-		notificationPermissionStatusAtom,
-	);
+	const notificationPermission = useAtomValue(notificationPermissionStatusAtom);
 	const currentLocation = useAtomValue(currentLocationAtom);
 	const isGeofencingActive = useGeofencingActive();
 	const workerId = auth.status === "authenticated" ? auth.user.id : undefined;
