@@ -16,5 +16,5 @@ export function configureAmplify(): void {
  * 各 feature の services.ts / tasks.ts からこれを import する
  */
 export const client = generateClient<Schema>({
-	authMode: "identityPool",
+	authMode: "userPool",
 });
