@@ -1,68 +1,131 @@
-import { errAsync, okAsync, type ResultAsync } from "neverthrow";
+import {
+	confirmResetPassword as amplifyConfirmResetPassword,
+	confirmSignIn as amplifyConfirmSignIn,
+	resetPassword as amplifyResetPassword,
+	signIn as amplifySignIn,
+	signOut as amplifySignOut,
+	fetchUserAttributes,
+	getCurrentUser,
+} from "aws-amplify/auth";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { AuthError, type AuthUser, InvalidCredentialsError } from "./types";
-
-/**
- * スタブ実装。将来 Amplify Auth に差し替える。
- *
- * 動作:
- *   - test@example.com + 任意のパスワード → 成功
- *   - newuser@example.com                → NEW_PASSWORD_REQUIRED
- *   - error@example.com                  → エラー
- *   - それ以外                            → InvalidCredentialsError
- */
 
 export type SignInResult =
 	| { kind: "success"; user: AuthUser }
 	| { kind: "needsNewPassword"; email: string };
 
+function toSignInError(e: unknown): AuthError | InvalidCredentialsError {
+	if (e instanceof Error) {
+		switch (e.name) {
+			case "NotAuthorizedException":
+			case "UserNotFoundException":
+				return new InvalidCredentialsError(
+					"メールアドレスまたはパスワードが正しくありません",
+					{ cause: e },
+				);
+			default:
+				return new AuthError(e.message, { cause: e });
+		}
+	}
+	return new AuthError("認証中に予期しないエラーが発生しました");
+}
+
+function toAuthError(e: unknown): AuthError {
+	if (e instanceof Error) {
+		return new AuthError(e.message, { cause: e });
+	}
+	return new AuthError("認証中に予期しないエラーが発生しました");
+}
+
+async function loadAuthUser(): Promise<AuthUser> {
+	const current = await getCurrentUser();
+	const attrs = await fetchUserAttributes();
+	return {
+		id: current.userId,
+		email: attrs.email ?? current.signInDetails?.loginId ?? "",
+		name: attrs.given_name ?? "",
+	};
+}
+
 export function signIn(
 	email: string,
-	_password: string,
+	password: string,
 ): ResultAsync<SignInResult, AuthError | InvalidCredentialsError> {
-	if (email === "error@example.com") {
-		return errAsync(new AuthError("認証サーバーでエラーが発生しました"));
-	}
-	if (email === "newuser@example.com") {
-		return okAsync({ kind: "needsNewPassword", email });
-	}
-	if (email === "test@example.com") {
-		return okAsync({
-			kind: "success",
-			user: { id: "stub-user-id", email, name: "テストユーザー" },
-		});
-	}
-	return errAsync(
-		new InvalidCredentialsError(
-			"メールアドレスまたはパスワードが正しくありません",
-		),
-	);
+	return ResultAsync.fromPromise(
+		amplifySignIn({ username: email, password }),
+		toSignInError,
+	).andThen((output) => {
+		if (
+			output.nextStep.signInStep ===
+			"CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"
+		) {
+			return okAsync<SignInResult, AuthError>({
+				kind: "needsNewPassword",
+				email,
+			});
+		}
+		if (output.isSignedIn) {
+			return ResultAsync.fromPromise(loadAuthUser(), toAuthError).map(
+				(user): SignInResult => ({ kind: "success", user }),
+			);
+		}
+		return errAsync(
+			new AuthError(`未対応の認証ステップ: ${output.nextStep.signInStep}`),
+		);
+	});
 }
 
 export function completeNewPassword(
-	email: string,
-	_newPassword: string,
+	_email: string,
+	newPassword: string,
 ): ResultAsync<AuthUser, AuthError> {
-	return okAsync({ id: "stub-user-id", email, name: "テストユーザー" });
+	return ResultAsync.fromPromise(
+		amplifyConfirmSignIn({ challengeResponse: newPassword }),
+		toAuthError,
+	).andThen((output) => {
+		if (!output.isSignedIn) {
+			return errAsync(
+				new AuthError(
+					`パスワード変更後の認証ステップが未対応: ${output.nextStep.signInStep}`,
+				),
+			);
+		}
+		return ResultAsync.fromPromise(loadAuthUser(), toAuthError);
+	});
 }
 
 export function signOut(): ResultAsync<void, AuthError> {
-	return okAsync(undefined);
+	return ResultAsync.fromPromise(amplifySignOut(), toAuthError).map(
+		() => undefined,
+	);
 }
 
 export function requestPasswordReset(
-	_email: string,
+	email: string,
 ): ResultAsync<void, AuthError> {
-	return okAsync(undefined);
+	return ResultAsync.fromPromise(
+		amplifyResetPassword({ username: email }),
+		toAuthError,
+	).map(() => undefined);
 }
 
 export function confirmPasswordReset(
-	_email: string,
-	_code: string,
-	_newPassword: string,
+	email: string,
+	code: string,
+	newPassword: string,
 ): ResultAsync<void, AuthError> {
-	return okAsync(undefined);
+	return ResultAsync.fromPromise(
+		amplifyConfirmResetPassword({
+			username: email,
+			confirmationCode: code,
+			newPassword,
+		}),
+		toAuthError,
+	).map(() => undefined);
 }
 
 export function restoreSession(): ResultAsync<AuthUser | null, AuthError> {
-	return okAsync(null);
+	return ResultAsync.fromPromise(loadAuthUser(), (e) => e).orElse(() =>
+		okAsync<AuthUser | null, AuthError>(null),
+	);
 }
