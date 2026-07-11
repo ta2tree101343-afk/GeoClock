@@ -1,6 +1,6 @@
 import { atom } from "jotai";
-import { authStateAtom } from "../auth/stores";
 import { lastEventsByGeofenceAtom } from "../location-event/stores";
+import { currentWorkerAtom } from "../worker/stores";
 import { fetchGeofences } from "./services";
 import type { Geofence, WorkplaceStatus } from "./types";
 
@@ -8,10 +8,10 @@ const geofencesRefetchKeyAtom = atom(0);
 
 export const geofencesAtom = atom(async (get): Promise<Geofence[]> => {
 	get(geofencesRefetchKeyAtom);
-	const auth = get(authStateAtom);
-	if (auth.status !== "authenticated") return [];
+	const worker = await get(currentWorkerAtom);
+	if (worker == null) return [];
 
-	const result = await fetchGeofences(auth.user.id);
+	const result = await fetchGeofences(worker.id);
 	if (result.isErr()) throw result.error;
 	return result.value;
 });
