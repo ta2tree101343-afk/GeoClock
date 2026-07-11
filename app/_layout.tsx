@@ -1,3 +1,5 @@
+import "react-native-get-random-values";
+import "@aws-amplify/react-native";
 import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { Provider, useAtomValue, useSetAtom } from "jotai";
