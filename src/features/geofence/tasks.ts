@@ -1,10 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
-import { recordEvent } from "../location-event/services";
+import {
+	readLastEvents,
+	recordEvent,
+	syncAttendanceLog,
+} from "../location-event/services";
+import type { LocationEventType } from "../location-event/types";
 import { sendLocalNotification } from "../notification/services";
 import { STORAGE_KEY_CURRENT_WORKER_ID } from "../worker/stores";
+import { enqueue, retryAll } from "./pendingQueue";
 import { fetchGeofences } from "./services";
+import { shouldProcessEvent } from "./shouldProcessEvent";
 
 export const GEOFENCE_TASK_NAME = "geoclock-geofence-task";
 
@@ -32,6 +39,10 @@ async function resolveGeofenceName(
 	return result.value.find((g) => g.id === identifier)?.name ?? identifier;
 }
 
+function generateEventId(): string {
+	return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 TaskManager.defineTask<GeofenceTaskData>(
 	GEOFENCE_TASK_NAME,
 	async ({ data, error }) => {
@@ -42,7 +53,7 @@ TaskManager.defineTask<GeofenceTaskData>(
 		if (!data) return;
 
 		const { eventType, region } = data;
-		const type =
+		const type: LocationEventType =
 			eventType === Location.GeofencingEventType.Enter ? "in" : "out";
 
 		const workerId = await readCurrentWorkerId();
@@ -53,13 +64,40 @@ TaskManager.defineTask<GeofenceTaskData>(
 			return;
 		}
 
-		await recordEvent({
+		const lastEvents = await readLastEvents();
+		const now = new Date();
+		if (
+			!shouldProcessEvent(lastEvents[region.identifier] ?? null, {
+				type,
+				timestamp: now,
+			})
+		) {
+			console.info(
+				`[geofence-task] event suppressed by shouldProcessEvent: ${region.identifier} ${type}`,
+			);
+			return;
+		}
+
+		const result = await recordEvent({
 			workerId,
 			geofenceId: region.identifier,
 			type,
 			latitude: region.latitude,
 			longitude: region.longitude,
+			timestamp: now,
 		});
+
+		if (!result.dbSynced) {
+			await enqueue({
+				id: generateEventId(),
+				workerId,
+				geofenceId: region.identifier,
+				type,
+				timestamp: result.timestamp,
+				latitude: region.latitude,
+				longitude: region.longitude,
+			});
+		}
 
 		const label = type === "in" ? "出勤" : "退勤";
 		const name = await resolveGeofenceName(region.identifier, workerId);
@@ -99,4 +137,21 @@ export async function stopGeofencing(): Promise<void> {
 
 export async function isGeofencingActive(): Promise<boolean> {
 	return TaskManager.isTaskRegisteredAsync(GEOFENCE_TASK_NAME);
+}
+
+/**
+ * ペンディングキューの再送を試みる。アプリ復帰時などに呼ぶ。
+ */
+export async function retryPendingAttendanceLogs(): Promise<void> {
+	await retryAll(async (event) => {
+		return syncAttendanceLog({
+			id: event.id,
+			workerId: event.workerId,
+			geofenceId: event.geofenceId,
+			type: event.type,
+			latitude: event.latitude,
+			longitude: event.longitude,
+			timestamp: new Date(event.timestamp),
+		});
+	});
 }

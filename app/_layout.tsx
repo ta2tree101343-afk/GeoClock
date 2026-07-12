@@ -8,6 +8,7 @@ import {
 	authStateAtom,
 	restoreSessionAction,
 } from "../src/features/auth/stores";
+import { retryPendingAttendanceLogs } from "../src/features/geofence/tasks";
 import "../src/features/geofence/tasks";
 import { configureAmplify } from "../src/shared/lib/amplify";
 import { LoadingView } from "../src/shared/ui/LoadingView";
@@ -32,6 +33,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		restoreSession();
 	}, [restoreSession]);
+
+	useEffect(() => {
+		if (state.status !== "authenticated") return;
+		retryPendingAttendanceLogs().catch((e) => {
+			console.error("[layout] retryPendingAttendanceLogs failed", e);
+		});
+	}, [state.status]);
 
 	useEffect(() => {
 		if (state.status === "checking") return;
