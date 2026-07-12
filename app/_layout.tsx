@@ -3,7 +3,8 @@ import "@aws-amplify/react-native";
 import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { Provider, useAtomValue, useSetAtom } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { AppState, type AppStateStatus } from "react-native";
 import {
 	authStateAtom,
 	restoreSessionAction,
@@ -34,11 +35,29 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 		restoreSession();
 	}, [restoreSession]);
 
+	const lastAppStateRef = useRef<AppStateStatus>(AppState.currentState);
+
 	useEffect(() => {
 		if (state.status !== "authenticated") return;
 		retryPendingAttendanceLogs().catch((e) => {
 			console.error("[layout] retryPendingAttendanceLogs failed", e);
 		});
+	}, [state.status]);
+
+	useEffect(() => {
+		const subscription = AppState.addEventListener("change", (nextState) => {
+			const prev = lastAppStateRef.current;
+			lastAppStateRef.current = nextState;
+			const cameToForeground =
+				(prev === "background" || prev === "inactive") &&
+				nextState === "active";
+			if (cameToForeground && state.status === "authenticated") {
+				retryPendingAttendanceLogs().catch((e) => {
+					console.error("[layout] retryPendingAttendanceLogs failed", e);
+				});
+			}
+		});
+		return () => subscription.remove();
 	}, [state.status]);
 
 	useEffect(() => {
