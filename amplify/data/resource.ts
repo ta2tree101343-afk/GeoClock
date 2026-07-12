@@ -3,13 +3,14 @@ import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 /**
  * GeoClock データスキーマ
  *
- * - Worker: 労働者。Cognito sub と id を一致させる
- * - Geofence: 勤務地
- * - WorkerGeofence: 労働者と勤務地の紐付け（中間テーブル）
- * - AttendanceLog: 勤怠打刻ログ
+ * 認可設計:
+ * - **Worker**: 自分のレコードのみ read/write (id フィールドが Cognito sub)
+ * - **Geofence**: 認証済みユーザーは全員 read/write（TODO: 管理者グループ制限）
+ * - **WorkerGeofence**: 自分の割り当てのみ read/write (workerId が Cognito sub)
+ * - **AttendanceLog**: 自分の記録のみ read/write (workerId が Cognito sub)
  *
- * 認可は MVP として `allow.authenticated()`（サインイン済み全員）を使用。
- * 本番前に owner-based / group-based に絞り込む予定。
+ * ownerDefinedIn("field") は、レコードの該当フィールドに保存されている値と
+ * リクエストしているユーザーの Cognito sub を照合して認可判定する。
  */
 const schema = a
 	.schema({
@@ -18,7 +19,9 @@ const schema = a
 				email: a.string().required(),
 				name: a.string().required(),
 			})
-			.authorization((allow) => [allow.authenticated()])
+			.authorization((allow) => [
+				allow.ownerDefinedIn("id").to(["read", "create", "update"]),
+			])
 			.secondaryIndexes((index) => [index("email")]),
 
 		Geofence: a
@@ -38,7 +41,7 @@ const schema = a
 				geofenceId: a.string().required(),
 				assignedAt: a.datetime().required(),
 			})
-			.authorization((allow) => [allow.authenticated()])
+			.authorization((allow) => [allow.ownerDefinedIn("workerId")])
 			.secondaryIndexes((index) => [
 				index("workerId"),
 				index("geofenceId"),
@@ -53,7 +56,9 @@ const schema = a
 				latitude: a.float().required(),
 				longitude: a.float().required(),
 			})
-			.authorization((allow) => [allow.authenticated()])
+			.authorization((allow) => [
+				allow.ownerDefinedIn("workerId").to(["read", "create"]),
+			])
 			.secondaryIndexes((index) => [
 				index("workerId").sortKeys(["timestamp"]),
 				index("geofenceId").sortKeys(["timestamp"]),
