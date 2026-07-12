@@ -1,5 +1,20 @@
-import { ClockScreen } from "../../src/features/clock/ui/ClockScreen";
+import { ClockScreen } from "@/features/clock/ui/ClockScreen";
+import { AsyncBoundary } from "@/shared/ui/AsyncBoundary";
+import { ErrorView } from "@/shared/ui/ErrorView";
+import { LoadingView } from "@/shared/ui/LoadingView";
 
 export default function ClockTab() {
-	return <ClockScreen />;
+	return (
+		<AsyncBoundary
+			fallback={<LoadingView />}
+			errorFallback={({ error, resetErrorBoundary }) => (
+				<ErrorView
+					error={error instanceof Error ? error : new Error(String(error))}
+					onRetry={resetErrorBoundary}
+				/>
+			)}
+		>
+			<ClockScreen />
+		</AsyncBoundary>
+	);
 }
