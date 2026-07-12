@@ -6,6 +6,7 @@ import { defineAuth } from "@aws-amplify/backend";
  * - 管理者がユーザーを作成する運用のため、セルフサインアップは無効
  * - 初回ログイン時に NEW_PASSWORD_REQUIRED でパスワード変更を強制
  * - 名前属性（givenName）を必須にする（Worker.name として使用）
+ * - "Admin" グループを定義: 勤務地の登録・変更などの管理操作権限
  */
 export const auth = defineAuth({
 	loginWith: {
@@ -17,4 +18,5 @@ export const auth = defineAuth({
 			mutable: true,
 		},
 	},
+	groups: ["Admin"],
 });
