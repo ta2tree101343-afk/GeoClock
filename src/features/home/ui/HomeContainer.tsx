@@ -13,26 +13,25 @@ import {
 import {
 	backgroundLocationPermissionStatusAtom,
 	currentLocationAtom,
-	locationPermissionStatusAtom,
-	refreshPermissionStatusAction,
 	requestBackgroundPermissionAction,
-	requestPermissionAction,
 } from "../../location/stores";
-import { PermissionGate } from "../../location/ui/PermissionGate";
 import { WorkplaceMap } from "../../location/ui/WorkplaceMap";
 import {
 	notificationPermissionStatusAtom,
 	refreshNotificationPermissionAction,
 	requestNotificationPermissionAction,
 } from "../../notification/stores";
+import type { Colors } from "../../../shared/theme/colors";
+import { useColors } from "../../../shared/theme/useColors";
 import { MonitoringControls } from "./MonitoringControls";
 import { SignOutButton } from "./SignOutButton";
 import { WorkplaceList } from "./WorkplaceList";
 
 export function HomeContainer() {
+	const c = useColors();
+	const styles = createStyles(c);
 	const auth = useAtomValue(authStateAtom);
 	const statuses = useAtomValue(workplaceStatusesAtom);
-	const permissionStatus = useAtomValue(locationPermissionStatusAtom);
 	const backgroundPermission = useAtomValue(
 		backgroundLocationPermissionStatusAtom,
 	);
@@ -43,18 +42,15 @@ export function HomeContainer() {
 	const { start, stop } = useGeofencingControls(workerId);
 
 	const refresh = useSetAtom(refreshWorkplaceStatusesAction);
-	const refreshPermission = useSetAtom(refreshPermissionStatusAction);
 	const refreshNotification = useSetAtom(refreshNotificationPermissionAction);
-	const requestPermission = useSetAtom(requestPermissionAction);
 	const requestBackground = useSetAtom(requestBackgroundPermissionAction);
 	const requestNotification = useSetAtom(requestNotificationPermissionAction);
 	const signOut = useSetAtom(signOutAction);
 	const [isPending, startTransition] = useTransition();
 
 	useEffect(() => {
-		refreshPermission();
 		refreshNotification();
-	}, [refreshPermission, refreshNotification]);
+	}, [refreshNotification]);
 
 	const displayName = auth.status === "authenticated" ? auth.user.name : "";
 
@@ -94,40 +90,38 @@ export function HomeContainer() {
 				<WorkplaceList statuses={statuses} refreshControl={refreshControl} />
 			</View>
 			<View style={styles.map}>
-				<PermissionGate
-					status={permissionStatus}
-					onRequest={() => requestPermission()}
-				>
-					<WorkplaceMap currentLocation={currentLocation} markers={markers} />
-				</PermissionGate>
+				<WorkplaceMap currentLocation={currentLocation} markers={markers} />
 			</View>
 		</View>
 	);
 }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
-	header: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
-		paddingHorizontal: 16,
-		paddingVertical: 12,
-		borderBottomWidth: StyleSheet.hairlineWidth,
-		borderBottomColor: "#ccc",
-	},
-	greeting: {
-		fontSize: 16,
-		fontWeight: "600",
-	},
-	list: {
-		flex: 2,
-	},
-	map: {
-		flex: 3,
-		borderTopWidth: StyleSheet.hairlineWidth,
-		borderTopColor: "#ccc",
-	},
-});
+const createStyles = (c: Colors) =>
+	StyleSheet.create({
+		container: {
+			flex: 1,
+			backgroundColor: c.background,
+		},
+		header: {
+			flexDirection: "row",
+			justifyContent: "space-between",
+			alignItems: "center",
+			paddingHorizontal: 16,
+			paddingVertical: 12,
+			borderBottomWidth: StyleSheet.hairlineWidth,
+			borderBottomColor: c.border,
+		},
+		greeting: {
+			fontSize: 16,
+			fontWeight: "600",
+			color: c.text,
+		},
+		list: {
+			flex: 2,
+		},
+		map: {
+			flex: 3,
+			borderTopWidth: StyleSheet.hairlineWidth,
+			borderTopColor: c.border,
+		},
+	});

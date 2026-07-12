@@ -1,5 +1,4 @@
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import { useCallback } from "react";
 import { refreshLastEventsAction } from "../location-event/stores";
 import { isGeofencingActive, startGeofencing, stopGeofencing } from "./tasks";
 
@@ -24,17 +23,17 @@ export function useGeofencingControls(workerId: string | undefined) {
 	const setActive = useSetAtom(setGeofencingActiveAtom);
 	const refreshEvents = useSetAtom(refreshLastEventsAction);
 
-	const start = useCallback(async () => {
+	const start = async () => {
 		if (workerId == null) return;
 		await startGeofencing(workerId);
 		setActive(await isGeofencingActive());
-	}, [workerId, setActive]);
+	};
 
-	const stop = useCallback(async () => {
+	const stop = async () => {
 		await stopGeofencing();
 		setActive(await isGeofencingActive());
 		refreshEvents();
-	}, [setActive, refreshEvents]);
+	};
 
 	return { start, stop };
 }
