@@ -4,13 +4,14 @@ import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
  * GeoClock データスキーマ
  *
  * 認可設計:
- * - **Worker**: 自分のレコードのみ read/write (id フィールドが Cognito sub)
- * - **Geofence**: 認証済みユーザーは全員 read/write（TODO: 管理者グループ制限）
- * - **WorkerGeofence**: 自分の割り当てのみ read/write (workerId が Cognito sub)
- * - **AttendanceLog**: 自分の記録のみ read/write (workerId が Cognito sub)
+ * - **Worker**: 自分のレコードのみ read/create/update (id フィールドが Cognito sub) + Admin は全操作
+ * - **Geofence**: 認証済みユーザーは read のみ + Admin は全操作
+ * - **WorkerGeofence**: 自分の割り当てを read (workerId が Cognito sub) + Admin は全操作
+ * - **AttendanceLog**: 自分の記録を read/create (workerId が Cognito sub) + Admin は read (レポート用)
  *
  * ownerDefinedIn("field") は、レコードの該当フィールドに保存されている値と
  * リクエストしているユーザーの Cognito sub を照合して認可判定する。
+ * allow.group("Admin") は Cognito の Admin グループに属するユーザーに指定操作を許可する。
  */
 const schema = a
 	.schema({
@@ -21,6 +22,7 @@ const schema = a
 			})
 			.authorization((allow) => [
 				allow.ownerDefinedIn("id").to(["read", "create", "update"]),
+				allow.group("Admin"),
 			])
 			.secondaryIndexes((index) => [index("email")]),
 
@@ -33,7 +35,10 @@ const schema = a
 				address: a.string(),
 				createdBy: a.string().required(),
 			})
-			.authorization((allow) => [allow.authenticated()]),
+			.authorization((allow) => [
+				allow.authenticated().to(["read"]),
+				allow.group("Admin"),
+			]),
 
 		WorkerGeofence: a
 			.model({
@@ -41,7 +46,10 @@ const schema = a
 				geofenceId: a.string().required(),
 				assignedAt: a.datetime().required(),
 			})
-			.authorization((allow) => [allow.ownerDefinedIn("workerId")])
+			.authorization((allow) => [
+				allow.ownerDefinedIn("workerId").to(["read"]),
+				allow.group("Admin"),
+			])
 			.secondaryIndexes((index) => [
 				index("workerId"),
 				index("geofenceId"),
@@ -58,6 +66,7 @@ const schema = a
 			})
 			.authorization((allow) => [
 				allow.ownerDefinedIn("workerId").to(["read", "create"]),
+				allow.group("Admin").to(["read"]),
 			])
 			.secondaryIndexes((index) => [
 				index("workerId").sortKeys(["timestamp"]),
