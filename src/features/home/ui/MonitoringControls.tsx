@@ -1,4 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import type { Colors } from "../../../shared/theme/colors";
+import { useColors } from "../../../shared/theme/useColors";
 import type { LocationPermissionStatus } from "../../location/types";
 import type { NotificationPermissionStatus } from "../../notification/types";
 
@@ -21,6 +23,8 @@ export function MonitoringControls({
 	onStart,
 	onStop,
 }: Props) {
+	const c = useColors();
+	const styles = createStyles(c);
 	const bgReady = backgroundPermission === "granted";
 	const notifReady = notificationPermission === "granted";
 	const canStart = bgReady && notifReady;
@@ -63,63 +67,64 @@ export function MonitoringControls({
 	);
 }
 
-const styles = StyleSheet.create({
-	container: {
-		padding: 12,
-		gap: 8,
-		borderBottomWidth: StyleSheet.hairlineWidth,
-		borderBottomColor: "#ccc",
-	},
-	statusRow: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
-	},
-	statusLabel: {
-		fontSize: 14,
-		color: "#666",
-	},
-	statusValue: {
-		fontSize: 14,
-		fontWeight: "600",
-		color: "#888",
-	},
-	statusActive: {
-		color: "#0a0",
-	},
-	smallButton: {
-		paddingVertical: 8,
-		paddingHorizontal: 12,
-		backgroundColor: "#eee",
-		borderRadius: 6,
-		alignItems: "center",
-	},
-	smallButtonText: {
-		fontSize: 13,
-		color: "#333",
-	},
-	primaryButton: {
-		paddingVertical: 10,
-		paddingHorizontal: 16,
-		backgroundColor: "#007AFF",
-		borderRadius: 8,
-		alignItems: "center",
-	},
-	primaryButtonText: {
-		color: "#fff",
-		fontSize: 14,
-		fontWeight: "600",
-	},
-	dangerButton: {
-		paddingVertical: 10,
-		paddingHorizontal: 16,
-		backgroundColor: "#666",
-		borderRadius: 8,
-		alignItems: "center",
-	},
-	dangerButtonText: {
-		color: "#fff",
-		fontSize: 14,
-		fontWeight: "600",
-	},
-});
+const createStyles = (c: Colors) =>
+	StyleSheet.create({
+		container: {
+			padding: 12,
+			gap: 8,
+			borderBottomWidth: StyleSheet.hairlineWidth,
+			borderBottomColor: c.border,
+		},
+		statusRow: {
+			flexDirection: "row",
+			justifyContent: "space-between",
+			alignItems: "center",
+		},
+		statusLabel: {
+			fontSize: 14,
+			color: c.textSecondary,
+		},
+		statusValue: {
+			fontSize: 14,
+			fontWeight: "600",
+			color: c.textMuted,
+		},
+		statusActive: {
+			color: c.success,
+		},
+		smallButton: {
+			paddingVertical: 8,
+			paddingHorizontal: 12,
+			backgroundColor: c.surfaceMuted,
+			borderRadius: 6,
+			alignItems: "center",
+		},
+		smallButtonText: {
+			fontSize: 13,
+			color: c.text,
+		},
+		primaryButton: {
+			paddingVertical: 10,
+			paddingHorizontal: 16,
+			backgroundColor: c.primary,
+			borderRadius: 8,
+			alignItems: "center",
+		},
+		primaryButtonText: {
+			color: c.primaryContrast,
+			fontSize: 14,
+			fontWeight: "600",
+		},
+		dangerButton: {
+			paddingVertical: 10,
+			paddingHorizontal: 16,
+			backgroundColor: c.textSecondary,
+			borderRadius: 8,
+			alignItems: "center",
+		},
+		dangerButtonText: {
+			color: c.primaryContrast,
+			fontSize: 14,
+			fontWeight: "600",
+		},
+	});

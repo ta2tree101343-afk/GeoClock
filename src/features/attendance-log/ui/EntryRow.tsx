@@ -1,4 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
+import type { Colors } from "../../../shared/theme/colors";
+import { useColors } from "../../../shared/theme/useColors";
 import type { AttendanceEntry } from "../types";
 
 type Props = {
@@ -6,15 +8,12 @@ type Props = {
 };
 
 export function EntryRow({ entry }: Props) {
+	const c = useColors();
+	const styles = createStyles(c);
 	const isIn = entry.type === "in";
 	return (
 		<View style={styles.row}>
-			<View
-				style={[
-					styles.badge,
-					isIn ? styles.badgeIn : styles.badgeOut,
-				]}
-			>
+			<View style={[styles.badge, isIn ? styles.badgeIn : styles.badgeOut]}>
 				<Text style={styles.badgeText}>{isIn ? "IN" : "OUT"}</Text>
 			</View>
 			<View style={styles.body}>
@@ -31,43 +30,45 @@ function formatTime(date: Date): string {
 	return `${hh}:${mm}`;
 }
 
-const styles = StyleSheet.create({
-	row: {
-		flexDirection: "row",
-		alignItems: "center",
-		paddingVertical: 12,
-		paddingHorizontal: 16,
-		backgroundColor: "#fff",
-		gap: 12,
-	},
-	badge: {
-		width: 44,
-		height: 28,
-		borderRadius: 6,
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	badgeIn: {
-		backgroundColor: "#0a0",
-	},
-	badgeOut: {
-		backgroundColor: "#666",
-	},
-	badgeText: {
-		color: "#fff",
-		fontSize: 12,
-		fontWeight: "700",
-	},
-	body: {
-		flex: 1,
-	},
-	name: {
-		fontSize: 15,
-		fontWeight: "600",
-	},
-	time: {
-		fontSize: 13,
-		color: "#666",
-		marginTop: 2,
-	},
-});
+const createStyles = (c: Colors) =>
+	StyleSheet.create({
+		row: {
+			flexDirection: "row",
+			alignItems: "center",
+			paddingVertical: 12,
+			paddingHorizontal: 16,
+			backgroundColor: c.surface,
+			gap: 12,
+		},
+		badge: {
+			width: 44,
+			height: 28,
+			borderRadius: 6,
+			alignItems: "center",
+			justifyContent: "center",
+		},
+		badgeIn: {
+			backgroundColor: c.success,
+		},
+		badgeOut: {
+			backgroundColor: c.textSecondary,
+		},
+		badgeText: {
+			color: c.primaryContrast,
+			fontSize: 12,
+			fontWeight: "700",
+		},
+		body: {
+			flex: 1,
+		},
+		name: {
+			fontSize: 15,
+			fontWeight: "600",
+			color: c.text,
+		},
+		time: {
+			fontSize: 13,
+			color: c.textSecondary,
+			marginTop: 2,
+		},
+	});

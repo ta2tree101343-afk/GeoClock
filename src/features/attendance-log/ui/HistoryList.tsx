@@ -6,6 +6,8 @@ import {
 	Text,
 	View,
 } from "react-native";
+import type { Colors } from "../../../shared/theme/colors";
+import { useColors } from "../../../shared/theme/useColors";
 import type { AttendanceDayGroup } from "../types";
 import { EntryRow } from "./EntryRow";
 
@@ -15,6 +17,8 @@ type Props = {
 };
 
 export function HistoryList({ groups, refreshControl }: Props) {
+	const c = useColors();
+	const styles = createStyles(c);
 	const sections = groups.map((g) => ({
 		title: g.label,
 		data: g.entries,
@@ -42,27 +46,28 @@ export function HistoryList({ groups, refreshControl }: Props) {
 	);
 }
 
-const styles = StyleSheet.create({
-	header: {
-		paddingHorizontal: 16,
-		paddingVertical: 8,
-		backgroundColor: "#f2f2f2",
-	},
-	headerText: {
-		fontSize: 13,
-		fontWeight: "600",
-		color: "#555",
-	},
-	separator: {
-		height: StyleSheet.hairlineWidth,
-		backgroundColor: "#e0e0e0",
-	},
-	empty: {
-		padding: 40,
-		alignItems: "center",
-	},
-	emptyText: {
-		color: "#888",
-		fontSize: 14,
-	},
-});
+const createStyles = (c: Colors) =>
+	StyleSheet.create({
+		header: {
+			paddingHorizontal: 16,
+			paddingVertical: 8,
+			backgroundColor: c.surfaceMuted,
+		},
+		headerText: {
+			fontSize: 13,
+			fontWeight: "600",
+			color: c.textSecondary,
+		},
+		separator: {
+			height: StyleSheet.hairlineWidth,
+			backgroundColor: c.border,
+		},
+		empty: {
+			padding: 40,
+			alignItems: "center",
+		},
+		emptyText: {
+			color: c.textMuted,
+			fontSize: 14,
+		},
+	});
