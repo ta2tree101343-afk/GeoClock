@@ -9,6 +9,7 @@ import {
 import type { LocationEventType } from "../location-event/types";
 import { sendLocalNotification } from "../notification/services";
 import { STORAGE_KEY_CURRENT_WORKER_ID } from "../worker/stores";
+import { geofenceTaskLogger } from "../../shared/lib/logger";
 import { enqueue, retryAll } from "./pendingQueue";
 import { fetchGeofences } from "./services";
 import { shouldProcessEvent } from "./shouldProcessEvent";
@@ -47,7 +48,7 @@ TaskManager.defineTask<GeofenceTaskData>(
 	GEOFENCE_TASK_NAME,
 	async ({ data, error }) => {
 		if (error) {
-			console.error("[geofence-task]", error);
+			geofenceTaskLogger.error("task received error", error);
 			return;
 		}
 		if (!data) return;
@@ -58,8 +59,8 @@ TaskManager.defineTask<GeofenceTaskData>(
 
 		const workerId = await readCurrentWorkerId();
 		if (workerId == null) {
-			console.warn(
-				"[geofence-task] currentWorkerId is missing; skip recording",
+			geofenceTaskLogger.warn(
+				"currentWorkerId is missing; skip recording",
 			);
 			return;
 		}
@@ -72,8 +73,8 @@ TaskManager.defineTask<GeofenceTaskData>(
 				timestamp: now,
 			})
 		) {
-			console.info(
-				`[geofence-task] event suppressed by shouldProcessEvent: ${region.identifier} ${type}`,
+			geofenceTaskLogger.info(
+				`event suppressed by shouldProcessEvent: ${region.identifier} ${type}`,
 			);
 			return;
 		}
