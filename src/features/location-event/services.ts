@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { client } from "../../shared/lib/amplify";
+import { locationEventLogger } from "../../shared/lib/logger";
 import type { LastEventByGeofence, LocationEventType } from "./types";
 
 export const STORAGE_KEY_LAST_EVENTS = "geoclock:lastEventsByGeofence:v1";
@@ -75,12 +76,12 @@ export async function syncAttendanceLog(
 		}
 		const { errors } = await client.models.AttendanceLog.create(record);
 		if (errors && errors.length > 0) {
-			console.error("[location-event] AttendanceLog write errors", errors);
+			locationEventLogger.error("AttendanceLog write errors", errors);
 			return false;
 		}
 		return true;
 	} catch (e) {
-		console.error("[location-event] AttendanceLog write threw", e);
+		locationEventLogger.error("AttendanceLog write threw", e);
 		return false;
 	}
 }

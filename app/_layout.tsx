@@ -12,6 +12,7 @@ import {
 import { retryPendingAttendanceLogs } from "../src/features/geofence/tasks";
 import "../src/features/geofence/tasks";
 import { configureAmplify } from "../src/shared/lib/amplify";
+import { layoutLogger } from "../src/shared/lib/logger";
 import { LoadingView } from "../src/shared/ui/LoadingView";
 
 configureAmplify();
@@ -40,7 +41,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		if (state.status !== "authenticated") return;
 		retryPendingAttendanceLogs().catch((e) => {
-			console.error("[layout] retryPendingAttendanceLogs failed", e);
+			layoutLogger.error("retryPendingAttendanceLogs failed", e);
 		});
 	}, [state.status]);
 
@@ -53,7 +54,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 				nextState === "active";
 			if (cameToForeground && state.status === "authenticated") {
 				retryPendingAttendanceLogs().catch((e) => {
-					console.error("[layout] retryPendingAttendanceLogs failed", e);
+					layoutLogger.error("retryPendingAttendanceLogs failed", e);
 				});
 			}
 		});
