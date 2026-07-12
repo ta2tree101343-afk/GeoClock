@@ -1,5 +1,7 @@
 import { AppleMaps } from "expo-maps";
 import { Platform, StyleSheet, Text, View } from "react-native";
+import type { Colors } from "../../../shared/theme/colors";
+import { useColors } from "../../../shared/theme/useColors";
 import type { Coordinate } from "../types";
 
 type MapMarker = {
@@ -20,6 +22,9 @@ const DEFAULT_CENTER: Coordinate = {
 };
 
 export function WorkplaceMap({ currentLocation, markers }: Props) {
+	const c = useColors();
+	const styles = createStyles(c);
+
 	if (Platform.OS !== "ios") {
 		return (
 			<View style={styles.unsupported}>
@@ -43,14 +48,14 @@ export function WorkplaceMap({ currentLocation, markers }: Props) {
 				id: m.id,
 				title: m.title,
 				coordinates: m.coordinate,
-				tintColor: "#007AFF",
+				tintColor: c.primary,
 			}))}
 			circles={markers.map((m) => ({
 				id: `${m.id}-radius`,
 				center: m.coordinate,
 				radius: m.radius,
-				lineColor: "#007AFF",
-				color: "rgba(0, 122, 255, 0.15)",
+				lineColor: c.primary,
+				color: c.overlay,
 				lineWidth: 2,
 			}))}
 			uiSettings={{
@@ -61,18 +66,19 @@ export function WorkplaceMap({ currentLocation, markers }: Props) {
 	);
 }
 
-const styles = StyleSheet.create({
-	map: {
-		flex: 1,
-	},
-	unsupported: {
-		flex: 1,
-		alignItems: "center",
-		justifyContent: "center",
-		backgroundColor: "#f0f0f0",
-	},
-	unsupportedText: {
-		color: "#666",
-		fontSize: 14,
-	},
-});
+const createStyles = (c: Colors) =>
+	StyleSheet.create({
+		map: {
+			flex: 1,
+		},
+		unsupported: {
+			flex: 1,
+			alignItems: "center",
+			justifyContent: "center",
+			backgroundColor: c.surfaceMuted,
+		},
+		unsupportedText: {
+			color: c.textSecondary,
+			fontSize: 14,
+		},
+	});

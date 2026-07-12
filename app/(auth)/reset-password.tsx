@@ -2,8 +2,12 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { confirmPasswordReset } from "../../src/features/auth/services";
+import type { Colors } from "../../src/shared/theme/colors";
+import { useColors } from "../../src/shared/theme/useColors";
 
 export default function ResetPasswordScreen() {
+	const c = useColors();
+	const styles = createStyles(c);
 	const router = useRouter();
 	const { email: emailParam } = useLocalSearchParams<{ email?: string }>();
 	const [code, setCode] = useState("");
@@ -50,6 +54,7 @@ export default function ResetPasswordScreen() {
 				autoCapitalize="none"
 				keyboardType="number-pad"
 				editable={!isSubmitting}
+				placeholderTextColor={c.textMuted}
 			/>
 
 			<Text style={styles.label}>新しいパスワード</Text>
@@ -60,6 +65,7 @@ export default function ResetPasswordScreen() {
 				secureTextEntry
 				autoCapitalize="none"
 				editable={!isSubmitting}
+				placeholderTextColor={c.textMuted}
 			/>
 
 			<Text style={styles.label}>確認用パスワード</Text>
@@ -70,6 +76,7 @@ export default function ResetPasswordScreen() {
 				secureTextEntry
 				autoCapitalize="none"
 				editable={!isSubmitting}
+				placeholderTextColor={c.textMuted}
 			/>
 
 			{error && <Text style={styles.error}>{error}</Text>}
@@ -87,47 +94,51 @@ export default function ResetPasswordScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		padding: 24,
-		gap: 8,
-	},
-	description: {
-		fontSize: 14,
-		color: "#666",
-		marginBottom: 12,
-	},
-	label: {
-		fontSize: 14,
-		fontWeight: "600",
-		marginTop: 12,
-	},
-	input: {
-		borderWidth: 1,
-		borderColor: "#ccc",
-		borderRadius: 8,
-		padding: 12,
-		fontSize: 16,
-	},
-	error: {
-		color: "#c00",
-		fontSize: 14,
-		marginTop: 8,
-	},
-	button: {
-		marginTop: 24,
-		padding: 16,
-		backgroundColor: "#007AFF",
-		borderRadius: 8,
-		alignItems: "center",
-	},
-	buttonDisabled: {
-		opacity: 0.5,
-	},
-	buttonText: {
-		color: "#fff",
-		fontSize: 16,
-		fontWeight: "600",
-	},
-});
+const createStyles = (c: Colors) =>
+	StyleSheet.create({
+		container: {
+			flex: 1,
+			padding: 24,
+			gap: 8,
+			backgroundColor: c.background,
+		},
+		description: {
+			fontSize: 14,
+			color: c.textSecondary,
+			marginBottom: 12,
+		},
+		label: {
+			fontSize: 14,
+			fontWeight: "600",
+			marginTop: 12,
+			color: c.text,
+		},
+		input: {
+			borderWidth: 1,
+			borderColor: c.border,
+			borderRadius: 8,
+			padding: 12,
+			fontSize: 16,
+			color: c.text,
+		},
+		error: {
+			color: c.error,
+			fontSize: 14,
+			marginTop: 8,
+		},
+		button: {
+			marginTop: 24,
+			padding: 16,
+			backgroundColor: c.primary,
+			borderRadius: 8,
+			alignItems: "center",
+		},
+		buttonDisabled: {
+			opacity: 0.5,
+		},
+		buttonText: {
+			color: c.primaryContrast,
+			fontSize: 16,
+			fontWeight: "600",
+		},
+	});

@@ -1,4 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
+import type { Colors } from "../../../shared/theme/colors";
+import { useColors } from "../../../shared/theme/useColors";
 import type { WorkplaceStatus } from "../../geofence/types";
 
 type Props = {
@@ -6,6 +8,8 @@ type Props = {
 };
 
 export function WorkplaceCard({ status }: Props) {
+	const c = useColors();
+	const styles = createStyles(c);
 	return (
 		<View style={styles.card}>
 			<Text style={styles.name}>📍 {status.geofence.name}</Text>
@@ -43,21 +47,23 @@ function formatDateTime(date: Date): string {
 	return prefix + formatTime(date);
 }
 
-const styles = StyleSheet.create({
-	card: {
-		padding: 16,
-		backgroundColor: "#fff",
-		borderRadius: 12,
-		borderWidth: StyleSheet.hairlineWidth,
-		borderColor: "#ddd",
-		gap: 6,
-	},
-	name: {
-		fontSize: 16,
-		fontWeight: "600",
-	},
-	status: {
-		fontSize: 14,
-		color: "#666",
-	},
-});
+const createStyles = (c: Colors) =>
+	StyleSheet.create({
+		card: {
+			padding: 16,
+			backgroundColor: c.surface,
+			borderRadius: 12,
+			borderWidth: StyleSheet.hairlineWidth,
+			borderColor: c.border,
+			gap: 6,
+		},
+		name: {
+			fontSize: 16,
+			fontWeight: "600",
+			color: c.text,
+		},
+		status: {
+			fontSize: 14,
+			color: c.textSecondary,
+		},
+	});

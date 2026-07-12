@@ -2,9 +2,13 @@ import { Link } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { signInAction, authStateAtom } from "../../src/features/auth/stores";
+import { authStateAtom, signInAction } from "../../src/features/auth/stores";
+import type { Colors } from "../../src/shared/theme/colors";
+import { useColors } from "../../src/shared/theme/useColors";
 
 export default function LoginScreen() {
+	const c = useColors();
+	const styles = createStyles(c);
 	const state = useAtomValue(authStateAtom);
 	const signIn = useSetAtom(signInAction);
 	const [email, setEmail] = useState("");
@@ -24,6 +28,7 @@ export default function LoginScreen() {
 				autoComplete="email"
 				keyboardType="email-address"
 				editable={!isSubmitting}
+				placeholderTextColor={c.textMuted}
 			/>
 
 			<Text style={styles.label}>パスワード</Text>
@@ -34,6 +39,7 @@ export default function LoginScreen() {
 				secureTextEntry
 				autoCapitalize="none"
 				editable={!isSubmitting}
+				placeholderTextColor={c.textMuted}
 			/>
 
 			{errorMessage && <Text style={styles.error}>{errorMessage}</Text>}
@@ -55,48 +61,52 @@ export default function LoginScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		padding: 24,
-		gap: 8,
-	},
-	label: {
-		fontSize: 14,
-		fontWeight: "600",
-		marginTop: 12,
-	},
-	input: {
-		borderWidth: 1,
-		borderColor: "#ccc",
-		borderRadius: 8,
-		padding: 12,
-		fontSize: 16,
-	},
-	error: {
-		color: "#c00",
-		fontSize: 14,
-		marginTop: 8,
-	},
-	button: {
-		marginTop: 24,
-		padding: 16,
-		backgroundColor: "#007AFF",
-		borderRadius: 8,
-		alignItems: "center",
-	},
-	buttonDisabled: {
-		opacity: 0.5,
-	},
-	buttonText: {
-		color: "#fff",
-		fontSize: 16,
-		fontWeight: "600",
-	},
-	link: {
-		marginTop: 16,
-		color: "#007AFF",
-		fontSize: 14,
-		textAlign: "center",
-	},
-});
+const createStyles = (c: Colors) =>
+	StyleSheet.create({
+		container: {
+			flex: 1,
+			padding: 24,
+			gap: 8,
+			backgroundColor: c.background,
+		},
+		label: {
+			fontSize: 14,
+			fontWeight: "600",
+			marginTop: 12,
+			color: c.text,
+		},
+		input: {
+			borderWidth: 1,
+			borderColor: c.border,
+			borderRadius: 8,
+			padding: 12,
+			fontSize: 16,
+			color: c.text,
+		},
+		error: {
+			color: c.error,
+			fontSize: 14,
+			marginTop: 8,
+		},
+		button: {
+			marginTop: 24,
+			padding: 16,
+			backgroundColor: c.primary,
+			borderRadius: 8,
+			alignItems: "center",
+		},
+		buttonDisabled: {
+			opacity: 0.5,
+		},
+		buttonText: {
+			color: c.primaryContrast,
+			fontSize: 16,
+			fontWeight: "600",
+		},
+		link: {
+			marginTop: 16,
+			color: c.primary,
+			fontSize: 14,
+			textAlign: "center",
+		},
+	});
