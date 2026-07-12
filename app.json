@@ -7,6 +7,9 @@
 		"orientation": "portrait",
 		"userInterfaceStyle": "automatic",
 		"newArchEnabled": true,
+		"experiments": {
+			"reactCompiler": true
+		},
 		"ios": {
 			"supportsTablet": false,
 			"bundleIdentifier": "com.geoclock.app",
