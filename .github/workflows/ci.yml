@@ -39,6 +39,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # amplify_outputs.json は各開発者の sandbox から生成される個人ファイル (.gitignore 済み)。
+      # CI では静的解析用のスタブを配置し、typecheck だけ通す。
+      - name: Create amplify_outputs.json stub
+        run: echo '{}' > amplify_outputs.json
+
       - name: Typecheck
         run: pnpm typecheck
 
