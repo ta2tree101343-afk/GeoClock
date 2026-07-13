@@ -6,6 +6,7 @@ import {
 	Text,
 	View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { Colors } from "../../../shared/theme/colors";
 import { useColors } from "../../../shared/theme/useColors";
 import type { AttendanceDayGroup } from "../types";
@@ -19,6 +20,7 @@ type Props = {
 export function HistoryList({ groups, refreshControl }: Props) {
 	const c = useColors();
 	const styles = createStyles(c);
+	const insets = useSafeAreaInsets();
 	const sections = groups.map((g) => ({
 		title: g.label,
 		data: g.entries,
@@ -42,6 +44,7 @@ export function HistoryList({ groups, refreshControl }: Props) {
 			}
 			refreshControl={refreshControl}
 			stickySectionHeadersEnabled
+			contentContainerStyle={{ paddingTop: insets.top }}
 		/>
 	);
 }
