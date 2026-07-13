@@ -74,7 +74,10 @@ export function ClockContainer() {
 			style={styles.container}
 			contentContainerStyle={[
 				styles.content,
-				{ paddingBottom: 16 + insets.bottom },
+				{
+					paddingTop: 16 + insets.top,
+					paddingBottom: 16 + insets.bottom,
+				},
 			]}
 			refreshControl={
 				<RefreshControl refreshing={isPending} onRefresh={onRefresh} />
