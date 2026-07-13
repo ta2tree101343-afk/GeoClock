@@ -1,6 +1,7 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
 	authStateAtom,
 	completeNewPasswordAction,
@@ -11,6 +12,7 @@ import { useColors } from "../../src/shared/theme/useColors";
 export default function NewPasswordScreen() {
 	const c = useColors();
 	const styles = createStyles(c);
+	const insets = useSafeAreaInsets();
 	const state = useAtomValue(authStateAtom);
 	const submit = useSetAtom(completeNewPasswordAction);
 	const [newPassword, setNewPassword] = useState("");
@@ -41,7 +43,9 @@ export default function NewPasswordScreen() {
 	};
 
 	return (
-		<View style={styles.container}>
+		<View
+			style={[styles.container, { paddingBottom: 24 + insets.bottom }]}
+		>
 			<Text style={styles.description}>
 				初回ログインのため、新しいパスワードを設定してください
 			</Text>

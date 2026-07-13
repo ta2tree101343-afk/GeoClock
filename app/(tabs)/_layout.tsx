@@ -7,6 +7,7 @@ import {
 	Text,
 	View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSignOut } from "../../src/features/auth/hooks";
 import { useLocationPermission } from "../../src/features/location/hooks";
 import { PermissionRequest } from "../../src/features/location/ui/PermissionRequest";
@@ -17,14 +18,20 @@ import { useColors } from "../../src/shared/theme/useColors";
 export default function TabsLayout() {
 	const c = useColors();
 	const styles = createStyles(c);
+	const insets = useSafeAreaInsets();
 	const { isLoading, error, retry } = useWorkerInitialization();
 	const { status: permissionStatus, refresh: refreshPermission } =
 		useLocationPermission();
 	const handleSignOut = useSignOut();
 
+	const centerStyle = [
+		styles.center,
+		{ paddingTop: 24 + insets.top, paddingBottom: 24 + insets.bottom },
+	];
+
 	if (isLoading) {
 		return (
-			<View style={styles.center}>
+			<View style={centerStyle}>
 				<ActivityIndicator size="large" color={c.primary} />
 				<Text style={styles.loadingText}>読み込み中...</Text>
 			</View>
@@ -33,7 +40,7 @@ export default function TabsLayout() {
 
 	if (error) {
 		return (
-			<View style={styles.center}>
+			<View style={centerStyle}>
 				<Text style={styles.errorIcon}>⚠️</Text>
 				<Text style={styles.errorText}>{error}</Text>
 				<Pressable style={styles.retryButton} onPress={retry}>

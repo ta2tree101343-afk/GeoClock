@@ -7,6 +7,7 @@ import {
 	Text,
 	View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { authStateAtom } from "../../auth/stores";
 import { refreshWorkplaceStatusesAction } from "../../geofence/stores";
 import { refreshCurrentLocationAction } from "../../location/stores";
@@ -20,6 +21,7 @@ import { PlaceCard } from "./PlaceCard";
 export function ClockContainer() {
 	const c = useColors();
 	const styles = createStyles(c);
+	const insets = useSafeAreaInsets();
 	const { currentLocation, insidePlaces, allPlaces } = useClockablePlaces();
 	const auth = useAtomValue(authStateAtom);
 	const refreshLocation = useSetAtom(refreshCurrentLocationAction);
@@ -69,7 +71,10 @@ export function ClockContainer() {
 	return (
 		<ScrollView
 			style={styles.container}
-			contentContainerStyle={styles.content}
+			contentContainerStyle={[
+				styles.content,
+				{ paddingBottom: 16 + insets.bottom },
+			]}
 			refreshControl={
 				<RefreshControl refreshing={isPending} onRefresh={onRefresh} />
 			}

@@ -5,6 +5,7 @@ import { Stack, useRouter, useSegments } from "expo-router";
 import { Provider, useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useRef } from "react";
 import { AppState, type AppStateStatus } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import {
 	authStateAtom,
 	restoreSessionAction,
@@ -93,14 +94,16 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
 	return (
-		<Provider>
-			<AuthGate>
-				<Stack>
-					<Stack.Screen name="(auth)" options={{ headerShown: false }} />
-					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-					<Stack.Screen name="checklist" options={{ headerShown: false }} />
-				</Stack>
-			</AuthGate>
-		</Provider>
+		<SafeAreaProvider>
+			<Provider>
+				<AuthGate>
+					<Stack>
+						<Stack.Screen name="(auth)" options={{ headerShown: false }} />
+						<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+						<Stack.Screen name="checklist" options={{ headerShown: false }} />
+					</Stack>
+				</AuthGate>
+			</Provider>
+		</SafeAreaProvider>
 	);
 }
