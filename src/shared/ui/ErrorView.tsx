@@ -3,9 +3,15 @@ import type { Colors } from "../theme/colors";
 import { useColors } from "../theme/useColors";
 
 type Props = {
-	error: Error;
+	error: unknown;
 	onRetry: () => void;
 };
+
+function toMessage(error: unknown): string {
+	if (error instanceof Error) return error.message;
+	if (typeof error === "string") return error;
+	return "エラーが発生しました";
+}
 
 export function ErrorView({ error, onRetry }: Props) {
 	const c = useColors();
@@ -13,7 +19,7 @@ export function ErrorView({ error, onRetry }: Props) {
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>エラーが発生しました</Text>
-			<Text style={styles.message}>{error.message}</Text>
+			<Text style={styles.message}>{toMessage(error)}</Text>
 			<Pressable style={styles.button} onPress={onRetry}>
 				<Text style={styles.buttonText}>再試行</Text>
 			</Pressable>

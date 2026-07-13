@@ -15,10 +15,7 @@ export function AsyncBoundary({ children, fallback, errorFallback }: Props) {
 			fallbackRender={
 				errorFallback ??
 				(({ error, resetErrorBoundary }) => (
-					<ErrorView
-						error={error instanceof Error ? error : new Error(String(error))}
-						onRetry={resetErrorBoundary}
-					/>
+					<ErrorView error={error} onRetry={resetErrorBoundary} />
 				))
 			}
 		>

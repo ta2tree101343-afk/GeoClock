@@ -1,6 +1,7 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useTransition } from "react";
 import { Alert, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { authStateAtom, signOutAction } from "../../auth/stores";
 import {
 	useGeofencingActive,
@@ -30,6 +31,7 @@ import { WorkplaceList } from "./WorkplaceList";
 export function HomeContainer() {
 	const c = useColors();
 	const styles = createStyles(c);
+	const insets = useSafeAreaInsets();
 	const auth = useAtomValue(authStateAtom);
 	const statuses = useAtomValue(workplaceStatusesAtom);
 	const backgroundPermission = useAtomValue(
@@ -88,7 +90,7 @@ export function HomeContainer() {
 
 	return (
 		<View style={styles.container}>
-			<View style={styles.header}>
+			<View style={[styles.header, { paddingTop: 12 + insets.top }]}>
 				<Text style={styles.greeting}>{displayName} さん</Text>
 				<SignOutButton onPress={confirmSignOut} />
 			</View>
