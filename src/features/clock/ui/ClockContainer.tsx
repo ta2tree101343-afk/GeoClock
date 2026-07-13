@@ -1,6 +1,7 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { useState, useTransition } from "react";
 import {
+	Alert,
 	RefreshControl,
 	ScrollView,
 	StyleSheet,
@@ -99,15 +100,27 @@ export function ClockContainer() {
 					key={place.status.geofence.id}
 					place={place}
 					disabled={busyGeofenceId === place.status.geofence.id}
-					onPress={() =>
-						currentLocation &&
-						onPunch(
-							place.status.geofence.id,
-							place.nextAction,
-							currentLocation.latitude,
-							currentLocation.longitude,
-						)
-					}
+					onPress={() => {
+						if (currentLocation == null) return;
+						const label = place.nextAction === "in" ? "出勤" : "退勤";
+						Alert.alert(
+							`${place.status.geofence.name} に${label}しますか？`,
+							"手動打刻を記録します。",
+							[
+								{ text: "キャンセル", style: "cancel" },
+								{
+									text: label,
+									onPress: () =>
+										onPunch(
+											place.status.geofence.id,
+											place.nextAction,
+											currentLocation.latitude,
+											currentLocation.longitude,
+										),
+								},
+							],
+						);
+					}}
 				/>
 			))}
 

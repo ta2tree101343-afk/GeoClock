@@ -1,6 +1,6 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useTransition } from "react";
-import { RefreshControl, StyleSheet, Text, View } from "react-native";
+import { Alert, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { authStateAtom, signOutAction } from "../../auth/stores";
 import {
 	useGeofencingActive,
@@ -71,11 +71,26 @@ export function HomeContainer() {
 		/>
 	);
 
+	const confirmSignOut = () => {
+		Alert.alert(
+			"ログアウトしますか？",
+			"再度利用するにはメールアドレスとパスワードでログインが必要です。",
+			[
+				{ text: "キャンセル", style: "cancel" },
+				{
+					text: "ログアウト",
+					style: "destructive",
+					onPress: () => signOut(),
+				},
+			],
+		);
+	};
+
 	return (
 		<View style={styles.container}>
 			<View style={styles.header}>
 				<Text style={styles.greeting}>{displayName} さん</Text>
-				<SignOutButton onPress={() => signOut()} />
+				<SignOutButton onPress={confirmSignOut} />
 			</View>
 			<MonitoringControls
 				isActive={isGeofencingActive}
