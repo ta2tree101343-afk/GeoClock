@@ -8,10 +8,7 @@ export default function HistoryTab() {
 		<AsyncBoundary
 			fallback={<LoadingView />}
 			errorFallback={({ error, resetErrorBoundary }) => (
-				<ErrorView
-					error={error instanceof Error ? error : new Error(String(error))}
-					onRetry={resetErrorBoundary}
-				/>
+				<ErrorView error={error} onRetry={resetErrorBoundary} />
 			)}
 		>
 			<HistoryScreen />
