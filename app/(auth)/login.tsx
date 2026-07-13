@@ -2,6 +2,7 @@ import { Link } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { authStateAtom, signInAction } from "../../src/features/auth/stores";
 import type { Colors } from "../../src/shared/theme/colors";
 import { useColors } from "../../src/shared/theme/useColors";
@@ -9,6 +10,7 @@ import { useColors } from "../../src/shared/theme/useColors";
 export default function LoginScreen() {
 	const c = useColors();
 	const styles = createStyles(c);
+	const insets = useSafeAreaInsets();
 	const state = useAtomValue(authStateAtom);
 	const signIn = useSetAtom(signInAction);
 	const [email, setEmail] = useState("");
@@ -18,7 +20,9 @@ export default function LoginScreen() {
 	const errorMessage = state.status === "error" ? state.error.message : null;
 
 	return (
-		<View style={styles.container}>
+		<View
+			style={[styles.container, { paddingBottom: 24 + insets.bottom }]}
+		>
 			<Text style={styles.label}>メールアドレス</Text>
 			<TextInput
 				style={styles.input}

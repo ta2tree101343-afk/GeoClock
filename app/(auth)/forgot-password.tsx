@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { requestPasswordReset } from "../../src/features/auth/services";
 import type { Colors } from "../../src/shared/theme/colors";
 import { useColors } from "../../src/shared/theme/useColors";
@@ -8,6 +9,7 @@ import { useColors } from "../../src/shared/theme/useColors";
 export default function ForgotPasswordScreen() {
 	const c = useColors();
 	const styles = createStyles(c);
+	const insets = useSafeAreaInsets();
 	const router = useRouter();
 	const [email, setEmail] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,7 +31,9 @@ export default function ForgotPasswordScreen() {
 	};
 
 	return (
-		<View style={styles.container}>
+		<View
+			style={[styles.container, { paddingBottom: 24 + insets.bottom }]}
+		>
 			<Text style={styles.description}>
 				登録済みのメールアドレスに確認コードを送信します
 			</Text>

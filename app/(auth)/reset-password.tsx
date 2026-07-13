@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { confirmPasswordReset } from "../../src/features/auth/services";
 import type { Colors } from "../../src/shared/theme/colors";
 import { useColors } from "../../src/shared/theme/useColors";
@@ -8,6 +9,7 @@ import { useColors } from "../../src/shared/theme/useColors";
 export default function ResetPasswordScreen() {
 	const c = useColors();
 	const styles = createStyles(c);
+	const insets = useSafeAreaInsets();
 	const router = useRouter();
 	const { email: emailParam } = useLocalSearchParams<{ email?: string }>();
 	const [code, setCode] = useState("");
@@ -41,7 +43,9 @@ export default function ResetPasswordScreen() {
 	};
 
 	return (
-		<View style={styles.container}>
+		<View
+			style={[styles.container, { paddingBottom: 24 + insets.bottom }]}
+		>
 			<Text style={styles.description}>
 				メールに届いた確認コードと新しいパスワードを入力してください
 			</Text>

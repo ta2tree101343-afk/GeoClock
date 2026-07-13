@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { Colors } from "../../../shared/theme/colors";
 import { useColors } from "../../../shared/theme/useColors";
 import { useLocationPermission } from "../hooks";
@@ -12,6 +13,7 @@ type Props = {
 export function PermissionRequest({ onComplete }: Props) {
 	const c = useColors();
 	const styles = createStyles(c);
+	const insets = useSafeAreaInsets();
 	const { status, refresh } = useLocationPermission();
 	const requestPermission = useSetAtom(requestPermissionAction);
 
@@ -22,7 +24,15 @@ export function PermissionRequest({ onComplete }: Props) {
 	};
 
 	return (
-		<View style={styles.container}>
+		<View
+			style={[
+				styles.container,
+				{
+					paddingTop: 24 + insets.top,
+					paddingBottom: 24 + insets.bottom,
+				},
+			]}
+		>
 			<Text style={styles.title}>位置情報の使用を許可してください</Text>
 			<Text style={styles.description}>
 				現在地と勤務地の位置関係を表示するために、位置情報を使用します。
