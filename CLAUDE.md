@@ -1,78 +1,77 @@
 # CLAUDE.md
 
-このファイルは Claude Code のセッション開始時に自動で読み込まれる。プロジェクトを短時間で把握できるよう要点だけ書く。詳細な手順は `README.md`、コーディング規約は `docs/conventions/`、要件は `docs/REQUIREMENTS.md` を参照。
+This file is loaded automatically by Claude Code at session start. Keep it terse — this is the entry point. See `README.md` for detailed setup, `docs/conventions/` for coding rules, and `docs/REQUIREMENTS.md` for the product spec.
 
-## プロジェクト概要
+## What this project is
 
-工事現場の外国人労働者向けのジオフェンス勤怠管理アプリ (MVP)。労働者が勤務地の 100m 圏内に入退場するだけで自動で出退勤を記録する。
+MVP of a geofence-based attendance tracker for foreign workers at construction sites. When a worker enters/exits the 100 m radius of a workplace, an IN/OUT event is recorded automatically.
 
-- **技術スタック**: Expo SDK 57 + React Native + expo-router + TypeScript + AWS Amplify Gen2 (Cognito + AppSync + DynamoDB) + Jotai + neverthrow
-- **プラットフォーム**: iOS 中心 (Apple Maps 利用のため)。Android は動作するがビルド未検証
+- **Stack**: Expo SDK 57 + React Native + expo-router + TypeScript + AWS Amplify Gen2 (Cognito + AppSync + DynamoDB) + Jotai + neverthrow
+- **Platform**: iOS-focused (Apple Maps). Android compiles but is not verified.
 
-## 開発コマンド
+## Common commands
 
 ```bash
-pnpm start          # Metro のみ (JS 変更はホットリロード)
-pnpm dlx expo run:ios  # ネイティブビルド (app.json / native module 変更後)
-pnpm typecheck      # tsc --noEmit
-pnpm lint           # biome lint
-pnpm format         # biome format --write
-pnpm test           # vitest (35 ケース)
-pnpm ampx sandbox --once  # Amplify sandbox 差分デプロイ
+pnpm start                # Metro only (JS changes hot-reload)
+pnpm dlx expo run:ios     # Rebuild native (after app.json / native module changes)
+pnpm typecheck            # tsc --noEmit
+pnpm lint                 # biome lint
+pnpm format               # biome format --write
+pnpm test                 # vitest (35 cases)
+pnpm ampx sandbox --once  # Deploy Amplify sandbox diff
 ```
 
-## 触ってはいけない / 慎重に触るもの
+## Do NOT touch (or touch carefully)
 
-- **`app.json`**: 変更したら `pnpm dlx expo prebuild --platform ios --clean` + `run:ios` が必要
-- **`expo-notifications` plugin** は Push Notifications capability を要求。Free Apple Dev で実機ビルドしたい時は `ios/GeoClock/GeoClock.entitlements` から `aps-environment` を削除する (prebuild で再生成される点に注意)
-- **`amplify/data/resource.ts`**: 変更したら `pnpm ampx sandbox --once` で再デプロイ、既存データとの互換性に注意
-- **owner-based 認可**: Worker / WorkerGeofence / AttendanceLog は `ownerDefinedIn("id" or "workerId")` + Admin グループ全操作
-- **React Compiler が有効**: `useMemo` / `useCallback` は書かなくてよい (`app.json > expo.experiments.reactCompiler: true`)
-- **GitHub Actions は SHA pin**: Dependabot 週次更新に任せる (`.github/dependabot.yml`)
+- **`app.json`**: any change requires `pnpm dlx expo prebuild --platform ios --clean` + `run:ios`
+- **`expo-notifications` plugin** injects Push Notifications capability. On Free Apple Dev provisioning, delete `aps-environment` from `ios/GeoClock/GeoClock.entitlements` (prebuild regenerates it)
+- **`amplify/data/resource.ts`**: after edits run `pnpm ampx sandbox --once`; watch out for owner-check breakage on existing rows
+- **Authorization**: `Worker`, `WorkerGeofence`, `AttendanceLog` use `ownerDefinedIn("id" | "workerId")`; `Admin` group has full CRUD
+- **React Compiler is ON** (`app.json > expo.experiments.reactCompiler: true`) — do NOT add `useMemo` / `useCallback`
+- **GitHub Actions are SHA-pinned**. Let Dependabot bump them (`.github/dependabot.yml`)
 
-## 設計方針 (conventions)
+## Conventions to follow
 
-- **feature 縦割り**: `src/features/<name>/{types,services,stores,hooks,ui}`
-- **外部依存は `services.ts` / `tasks.ts` に集約** (`docs/conventions/external-dependencies.md`)
-- **エラーは Result 型** で返す (`ResultAsync<T, AppError>`)、`throw` は async atom / Container 境界のみ (`docs/conventions/error-handling.md`)
-- **`AsyncBoundary` はタブファイル層** で明示配置、Screen 内では包まない
-- **テーマ色は `useColors()`** ハック禁止 (`src/shared/theme/`)
-- **ロガーは `createLogger(category)`** 使用、`console.*` 直呼び出しは避ける (`src/shared/lib/logger.ts`)
-- **`@/` エイリアス** で import (`tsconfig.json` の `paths` 設定)
-- **バックグラウンドタスクは Jotai atom を読めない** → `atomWithStorage` + AsyncStorage 直接アクセスの二重構成
+- **Feature slice**: `src/features/<name>/{types,services,stores,hooks,ui}`
+- **External deps stay in `services.ts` / `tasks.ts`** (`docs/conventions/external-dependencies.md`)
+- **Return Results, don't throw** (`ResultAsync<T, AppError>`); `throw` only inside async atoms / Container boundaries (`docs/conventions/error-handling.md`)
+- **`AsyncBoundary` lives at the tab file layer**, not inside Screen components
+- **Colors come from `useColors()`** — no hard-coded hex (`src/shared/theme/`)
+- **Use `createLogger(category)`** instead of raw `console.*` (`src/shared/lib/logger.ts`)
+- **Use the `@/` alias** for imports (see `tsconfig.json > paths`)
+- **Background tasks cannot read Jotai atoms** → use the AsyncStorage + `atomWithStorage` double-write pattern
 
-## 実装済み機能 (MVP + 磨き)
+## Already implemented (MVP + polish)
 
-- Cognito 認証 (login / new-password / forgot-password / reset-password / セッション復元)
-- Worker 自動作成 (Cognito sub と id 一致)
-- 勤務地一覧 (WorkerGeofence junction 経由)
-- 地図表示 (Apple Maps, ピン + ジオフェンス円 + 青ドット + fit bounds)
-- バックグラウンドジオフェンス監視 (`expo-task-manager` + `expo-location`)
-- ローカル通知 (`expo-notifications`)
-- 手動打刻タブ
-- 履歴タブ (SectionList で日付グループ表示)
-- `shouldProcessEvent` で頻発抑制 + `pendingQueue` で DB 書き込み失敗の再送
-- Admin グループ + Geofence 書き込み制限
+- Cognito auth flow (login / new-password / forgot-password / reset-password / session restore)
+- Auto-creation of `Worker` row (id = Cognito sub)
+- Assigned workplaces via `WorkerGeofence` junction
+- Map (Apple Maps: pins + geofence circles + blue user dot + fit-bounds camera)
+- Background geofence monitoring (`expo-task-manager` + `expo-location`)
+- Local notifications (`expo-notifications`)
+- Manual punch tab
+- History tab (SectionList grouped by date)
+- `shouldProcessEvent` debouncing + `pendingQueue` retry for failed DB writes
+- Admin group with write access to `Geofence`
 
-## 未実装 (要件待ち / 外部アカウント待ち)
+## Not implemented (waiting on requirements / external accounts)
 
-- `last-exit-check` (checklist) — 業務要件のヒアリング必要
-- `cafeteria` / `library` — 業務要件のヒアリング必要
-- Fastlane + iOS/Android beta ワークフロー — Apple Developer Program + Google Play Console + self-hosted runner
-- Admin Console (Web) — 別プロジェクトのスコープ
+- `last-exit-check` (checklist) — needs product spec
+- `cafeteria` / `library` tabs — needs product spec
+- Fastlane + iOS/Android beta workflows — needs Apple Developer Program, Google Play Console, self-hosted runners
+- Admin Console (web) — separate project scope
 
-## テストユーザー
+## Test users
 
 Cognito UserPool: `ap-northeast-1_DZGT4Wh4k`
 
-- 一般: `test@example.com` / 初期パスワード `Temp1234!` (初回変更必須)
-- 管理者作成: `./scripts/create-admin.sh <email> <password> <name>`
+- Worker: `test@example.com` / initial password `Temp1234!` (must change on first login)
+- Admin: `./scripts/create-admin.sh <email> <password> <name>`
+- Seed geofences (Shinjuku / Shibuya / Ikebukuro): `./scripts/seed.sh`
 
-勤務地 seed: `./scripts/seed.sh` (新宿・渋谷・池袋現場を投入)
-
-## 詰まりやすいポイント
+## Common footguns
 
 - **`Cannot find native module 'ExpoMaps'`** → `pnpm dlx expo prebuild --platform ios --clean && pnpm dlx expo run:ios`
-- **`amplify_outputs.json` が無い** → `pnpm ampx sandbox --once` で生成 (git ignored)
-- **Push Notifications capability エラー** → 上記の entitlements 削除
-- **Simulator の現在地がサンフランシスコ** → Features → Location → Custom Location で東京の座標 (35.6895, 139.6917 など) に設定
+- **`amplify_outputs.json` missing** → run `pnpm ampx sandbox --once` (file is git-ignored)
+- **Push Notifications capability error** → delete `aps-environment` from entitlements (see above)
+- **Simulator location defaults to San Francisco** → Simulator → Features → Location → Custom Location with Tokyo coordinates (e.g. 35.6895, 139.6917)
