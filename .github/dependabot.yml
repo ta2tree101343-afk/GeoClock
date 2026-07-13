@@ -1,0 +1,60 @@
+version: 2
+updates:
+  # GitHub Actions を SHA pin で使っているため、週次で最新の SHA に更新
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: ci
+      include: scope
+    cooldown:
+      default-days: 7
+
+  # npm 依存の週次更新。 minor / patch はまとめて 1 PR にする
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - npm
+    commit-message:
+      prefix: chore
+      include: scope
+    cooldown:
+      default-days: 7
+    groups:
+      # 開発依存のマイナー/パッチをまとめる
+      dev-minor-patch:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+      # ランタイム依存のパッチだけまとめる（マイナー以上は個別 PR）
+      runtime-patch:
+        dependency-type: production
+        update-types:
+          - patch
+    ignore:
+      # Expo / React Native の major は expo upgrade で一括更新するため無視
+      - dependency-name: expo
+        update-types:
+          - version-update:semver-major
+      - dependency-name: react-native
+        update-types:
+          - version-update:semver-major
+      - dependency-name: react
+        update-types:
+          - version-update:semver-major
