@@ -1,15 +1,17 @@
 import { ResultAsync } from "neverthrow";
 import { client } from "../../shared/lib/amplify";
+import { type MonthKey, monthRangeIso } from "../../shared/lib/date";
 import { fetchGeofences } from "../geofence/services";
 import { AttendanceLogError, type AttendanceEntry } from "./types";
 
-const FETCH_LIMIT = 100;
+const FETCH_LIMIT = 500;
 
-export function fetchAttendanceEntries(
+export function fetchAttendanceEntriesForMonth(
 	workerId: string,
+	month: MonthKey,
 ): ResultAsync<AttendanceEntry[], AttendanceLogError> {
 	return ResultAsync.fromPromise(
-		fetchAttendanceEntriesRaw(workerId),
+		fetchAttendanceEntriesRaw(workerId, month),
 		(e) =>
 			new AttendanceLogError("勤怠履歴の取得に失敗しました", { cause: e }),
 	);
@@ -17,10 +19,15 @@ export function fetchAttendanceEntries(
 
 async function fetchAttendanceEntriesRaw(
 	workerId: string,
+	month: MonthKey,
 ): Promise<AttendanceEntry[]> {
+	const { startIso, endIso } = monthRangeIso(month);
 	const { data: logs, errors } =
 		await client.models.AttendanceLog.listAttendanceLogByWorkerIdAndTimestamp(
-			{ workerId },
+			{
+				workerId,
+				timestamp: { between: [startIso, endIso] },
+			},
 			{ sortDirection: "DESC", limit: FETCH_LIMIT },
 		);
 	if (errors && errors.length > 0) {
