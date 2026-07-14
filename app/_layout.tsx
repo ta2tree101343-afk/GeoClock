@@ -12,6 +12,7 @@ import {
 } from "../src/features/auth/stores";
 import { retryPendingAttendanceLogs } from "../src/features/geofence/tasks";
 import "../src/features/geofence/tasks";
+import { refreshLastEventsAction } from "../src/features/location-event/stores";
 import { configureAmplify } from "../src/shared/lib/amplify";
 import { layoutLogger } from "../src/shared/lib/logger";
 import { LoadingView } from "../src/shared/ui/LoadingView";
@@ -30,6 +31,7 @@ Notifications.setNotificationHandler({
 function AuthGate({ children }: { children: React.ReactNode }) {
 	const state = useAtomValue(authStateAtom);
 	const restoreSession = useSetAtom(restoreSessionAction);
+	const refreshLastEvents = useSetAtom(refreshLastEventsAction);
 	const router = useRouter();
 	const segments = useSegments();
 
@@ -57,10 +59,15 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 				retryPendingAttendanceLogs().catch((e) => {
 					layoutLogger.error("retryPendingAttendanceLogs failed", e);
 				});
+				// バックグラウンドタスクが AsyncStorage を更新している可能性があるので
+				// 復帰時にホーム画面の状態を最新化
+				refreshLastEvents().catch((e) => {
+					layoutLogger.error("refreshLastEvents on foreground failed", e);
+				});
 			}
 		});
 		return () => subscription.remove();
-	}, [state.status]);
+	}, [state.status, refreshLastEvents]);
 
 	useEffect(() => {
 		if (state.status === "checking") return;

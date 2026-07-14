@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { authStateAtom } from "../../auth/stores";
+import { refreshAttendanceLogAction } from "../../attendance-log/stores";
 import { refreshWorkplaceStatusesAction } from "../../geofence/stores";
 import { refreshCurrentLocationAction } from "../../location/stores";
 import { refreshLastEventsAction } from "../../location-event/stores";
@@ -28,6 +29,7 @@ export function ClockContainer() {
 	const refreshLocation = useSetAtom(refreshCurrentLocationAction);
 	const refreshGeofences = useSetAtom(refreshWorkplaceStatusesAction);
 	const refreshEvents = useSetAtom(refreshLastEventsAction);
+	const refreshAttendance = useSetAtom(refreshAttendanceLogAction);
 	const [isPending, startTransition] = useTransition();
 	const [busyGeofenceId, setBusyGeofenceId] = useState<string | null>(null);
 	const [message, setMessage] = useState<string | null>(null);
@@ -63,7 +65,11 @@ export function ClockContainer() {
 					? `${label}を記録しました`
 					: `${label}を記録しました（オフライン: 復帰後に同期します）`,
 			);
-			refreshEvents();
+			// 打刻直後にホーム画面の状態と履歴タブを自動更新
+			// - refreshEvents: AsyncStorage から lastEvents を再読込 → workplaceStatusesAtom が再計算
+			// - refreshAttendance: DynamoDB から履歴を再フェッチ
+			await refreshEvents();
+			refreshAttendance();
 		} finally {
 			setBusyGeofenceId(null);
 		}
