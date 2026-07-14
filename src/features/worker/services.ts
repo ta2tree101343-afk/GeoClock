@@ -1,6 +1,26 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ResultAsync } from "neverthrow";
 import { client } from "../../shared/lib/amplify";
 import { WorkerError, type WorkerProfile } from "./types";
+
+/**
+ * バックグラウンドタスクと UI で共有する AsyncStorage キー。
+ * atom を持たない worker/services 側に置くことで、他 feature の tasks.ts が
+ * worker/stores を経由せず import できる（循環依存回避）。
+ */
+export const STORAGE_KEY_CURRENT_WORKER_ID = "geoclock:currentWorkerId:v1";
+
+export async function saveCurrentWorkerId(id: string): Promise<void> {
+	await AsyncStorage.setItem(STORAGE_KEY_CURRENT_WORKER_ID, id);
+}
+
+export async function clearCurrentWorkerId(): Promise<void> {
+	await AsyncStorage.removeItem(STORAGE_KEY_CURRENT_WORKER_ID);
+}
+
+export async function readCurrentWorkerId(): Promise<string | null> {
+	return AsyncStorage.getItem(STORAGE_KEY_CURRENT_WORKER_ID);
+}
 
 export function fetchWorker(
 	id: string,

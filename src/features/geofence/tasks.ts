@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
 import {
@@ -8,7 +7,7 @@ import {
 } from "../location-event/services";
 import type { LocationEventType } from "../location-event/types";
 import { sendLocalNotification } from "../notification/services";
-import { STORAGE_KEY_CURRENT_WORKER_ID } from "../worker/stores";
+import { readCurrentWorkerId } from "../worker/services";
 import { geofenceTaskLogger } from "../../shared/lib/logger";
 import { enqueue, retryAll } from "./pendingQueue";
 import { fetchGeofences } from "./services";
@@ -26,10 +25,6 @@ type GeofenceTaskData = {
 		radius: number;
 	};
 };
-
-async function readCurrentWorkerId(): Promise<string | null> {
-	return AsyncStorage.getItem(STORAGE_KEY_CURRENT_WORKER_ID);
-}
 
 async function resolveGeofenceName(
 	identifier: string,
