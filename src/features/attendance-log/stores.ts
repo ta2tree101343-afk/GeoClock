@@ -7,6 +7,7 @@ import {
 } from "../../shared/lib/date";
 import { currentWorkerAtom } from "../worker/stores";
 import { fetchAttendanceEntriesForMonth } from "./services";
+import { computeTotalWorkedSeconds } from "./summary";
 import type { AttendanceDayGroup, AttendanceEntry } from "./types";
 
 // 現在選択中の月 (デフォルト: 今月)
@@ -32,6 +33,18 @@ export const attendanceDayGroupsAtom = atom(
 	async (get): Promise<AttendanceDayGroup[]> => {
 		const entries = await get(attendanceEntriesAtom);
 		return groupByDate(entries);
+	},
+);
+
+export const monthlySummaryAtom = atom(
+	async (
+		get,
+	): Promise<{ totalWorkedSeconds: number; sessionCount: number }> => {
+		const entries = await get(attendanceEntriesAtom);
+		return {
+			totalWorkedSeconds: computeTotalWorkedSeconds(entries),
+			sessionCount: entries.length,
+		};
 	},
 );
 
