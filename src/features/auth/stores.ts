@@ -1,4 +1,7 @@
 import { atom } from "jotai";
+import { stopGeofencing } from "../geofence/tasks";
+import { clearCurrentWorkerId } from "../worker/services";
+import { authLogger } from "../../shared/lib/logger";
 import {
 	completeNewPassword,
 	restoreSession,
@@ -70,6 +73,15 @@ export const completeNewPasswordAction = atom(
 );
 
 export const signOutAction = atom(null, async (_get, set) => {
+	// Cognito サインアウトが失敗しても、端末側のバックグラウンド状態は
+	// 常にクリアする（旧ユーザーのジオフェンス監視が残り続けないように）
+	await stopGeofencing().catch((e) => {
+		authLogger.warn("stopGeofencing on sign-out failed", e);
+	});
+	await clearCurrentWorkerId().catch((e) => {
+		authLogger.warn("clearCurrentWorkerId on sign-out failed", e);
+	});
+
 	const result = await signOut();
 	if (result.isErr()) {
 		set(authStateAtom, { status: "error", error: result.error });

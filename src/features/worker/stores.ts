@@ -1,10 +1,10 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { atom } from "jotai";
 import { authStateAtom } from "../auth/stores";
-import { ensureWorker } from "./services";
+import { ensureWorker, saveCurrentWorkerId } from "./services";
 import type { WorkerProfile } from "./types";
 
-export const STORAGE_KEY_CURRENT_WORKER_ID = "geoclock:currentWorkerId:v1";
+// Re-export for backward compatibility (previously exported from stores)
+export { STORAGE_KEY_CURRENT_WORKER_ID } from "./services";
 
 /**
  * ログイン中の Worker を、なければ作成しつつ返す
@@ -22,7 +22,7 @@ export const currentWorkerAtom = atom(
 		});
 		if (result.isErr()) throw result.error;
 
-		await AsyncStorage.setItem(STORAGE_KEY_CURRENT_WORKER_ID, result.value.id);
+		await saveCurrentWorkerId(result.value.id);
 		return result.value;
 	},
 );
