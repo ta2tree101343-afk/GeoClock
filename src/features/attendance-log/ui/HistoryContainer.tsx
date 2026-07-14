@@ -1,10 +1,8 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { useTransition } from "react";
 import { RefreshControl, StyleSheet, View } from "react-native";
-import {
-	currentMonthKey,
-	isSameMonth,
-} from "../../../shared/lib/date";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { currentMonthKey, isSameMonth } from "../../../shared/lib/date";
 import {
 	attendanceDayGroupsAtom,
 	nextMonthAction,
@@ -17,6 +15,7 @@ import { HistoryList } from "./HistoryList";
 import { MonthNavigator } from "./MonthNavigator";
 
 export function HistoryContainer() {
+	const insets = useSafeAreaInsets();
 	const groups = useAtomValue(attendanceDayGroupsAtom);
 	const month = useAtomValue(selectedMonthAtom);
 	const refresh = useSetAtom(refreshAttendanceLogAction);
@@ -36,7 +35,7 @@ export function HistoryContainer() {
 	const isCurrentMonth = isSameMonth(month, now);
 
 	return (
-		<View style={styles.container}>
+		<View style={[styles.container, { paddingTop: insets.top }]}>
 			<MonthNavigator
 				month={month}
 				onPrevious={() => startTransition(() => goPrev())}

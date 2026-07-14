@@ -1,5 +1,10 @@
 import { atom } from "jotai";
-import { addMonths, currentMonthKey, type MonthKey } from "../../shared/lib/date";
+import {
+	addMonths,
+	currentMonthKey,
+	isAfterMonth,
+	type MonthKey,
+} from "../../shared/lib/date";
 import { currentWorkerAtom } from "../worker/stores";
 import { fetchAttendanceEntriesForMonth } from "./services";
 import type { AttendanceDayGroup, AttendanceEntry } from "./types";
@@ -39,9 +44,11 @@ export const previousMonthAction = atom(null, (get, set) => {
 	set(selectedMonthAtom, addMonths(get(selectedMonthAtom), -1));
 });
 
-// 翌月へ移動
+// 翌月へ移動（未来月には進めない防御を action 側にも持つ）
 export const nextMonthAction = atom(null, (get, set) => {
-	set(selectedMonthAtom, addMonths(get(selectedMonthAtom), 1));
+	const candidate = addMonths(get(selectedMonthAtom), 1);
+	if (isAfterMonth(candidate, currentMonthKey())) return;
+	set(selectedMonthAtom, candidate);
 });
 
 // 今月へリセット

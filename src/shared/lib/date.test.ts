@@ -3,6 +3,7 @@ import {
 	addMonths,
 	currentMonthKey,
 	formatMonthLabel,
+	isAfterMonth,
 	isSameMonth,
 	monthRangeIso,
 } from "./date";
@@ -96,5 +97,37 @@ describe("currentMonthKey", () => {
 	it("与えられた Date から month/year を抽出", () => {
 		const now = new Date(2026, 6, 15); // 2026年7月15日 (0-indexed month)
 		expect(currentMonthKey(now)).toEqual({ year: 2026, month: 7 });
+	});
+});
+
+describe("isAfterMonth", () => {
+	it("同月は false", () => {
+		expect(
+			isAfterMonth({ year: 2026, month: 7 }, { year: 2026, month: 7 }),
+		).toBe(false);
+	});
+
+	it("翌月は true", () => {
+		expect(
+			isAfterMonth({ year: 2026, month: 8 }, { year: 2026, month: 7 }),
+		).toBe(true);
+	});
+
+	it("前月は false", () => {
+		expect(
+			isAfterMonth({ year: 2026, month: 6 }, { year: 2026, month: 7 }),
+		).toBe(false);
+	});
+
+	it("翌年 1 月 vs 前年 12 月は true", () => {
+		expect(
+			isAfterMonth({ year: 2027, month: 1 }, { year: 2026, month: 12 }),
+		).toBe(true);
+	});
+
+	it("前年 12 月 vs 翌年 1 月は false", () => {
+		expect(
+			isAfterMonth({ year: 2026, month: 12 }, { year: 2027, month: 1 }),
+		).toBe(false);
 	});
 });

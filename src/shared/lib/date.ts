@@ -48,3 +48,11 @@ export function formatMonthLabel(key: MonthKey): string {
 export function isSameMonth(a: MonthKey, b: MonthKey): boolean {
 	return a.year === b.year && a.month === b.month;
 }
+
+/**
+ * a が b よりも未来（後）の月ならば true。
+ */
+export function isAfterMonth(a: MonthKey, b: MonthKey): boolean {
+	if (a.year !== b.year) return a.year > b.year;
+	return a.month > b.month;
+}
