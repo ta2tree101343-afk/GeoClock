@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { currentMonthKey, isSameMonth } from "../../../shared/lib/date";
 import {
 	attendanceDayGroupsAtom,
+	monthlySummaryAtom,
 	nextMonthAction,
 	previousMonthAction,
 	refreshAttendanceLogAction,
@@ -12,11 +13,13 @@ import {
 	selectedMonthAtom,
 } from "../stores";
 import { HistoryList } from "./HistoryList";
+import { MonthlySummary } from "./MonthlySummary";
 import { MonthNavigator } from "./MonthNavigator";
 
 export function HistoryContainer() {
 	const insets = useSafeAreaInsets();
 	const groups = useAtomValue(attendanceDayGroupsAtom);
+	const summary = useAtomValue(monthlySummaryAtom);
 	const month = useAtomValue(selectedMonthAtom);
 	const refresh = useSetAtom(refreshAttendanceLogAction);
 	const goPrev = useSetAtom(previousMonthAction);
@@ -44,6 +47,10 @@ export function HistoryContainer() {
 					isCurrentMonth ? undefined : () => startTransition(() => goCurrent())
 				}
 				nextDisabled={isCurrentMonth}
+			/>
+			<MonthlySummary
+				totalWorkedSeconds={summary.totalWorkedSeconds}
+				sessionCount={summary.sessionCount}
 			/>
 			<HistoryList groups={groups} refreshControl={refreshControl} />
 		</View>
