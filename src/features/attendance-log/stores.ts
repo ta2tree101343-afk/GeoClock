@@ -1,11 +1,18 @@
 import { atom } from "jotai";
+import {
+	addMonths,
+	currentMonthKey,
+	isAfterMonth,
+	type MonthKey,
+} from "../../shared/lib/date";
 import { currentWorkerAtom } from "../worker/stores";
-import { fetchAttendanceEntries } from "./services";
-import type {
-	AttendanceDayGroup,
-	AttendanceEntry,
-} from "./types";
+import { fetchAttendanceEntriesForMonth } from "./services";
+import type { AttendanceDayGroup, AttendanceEntry } from "./types";
 
+// 現在選択中の月 (デフォルト: 今月)
+export const selectedMonthAtom = atom<MonthKey>(currentMonthKey());
+
+// 月選択のリフェッチキー (手動リフレッシュで再フェッチ)
 const attendanceRefetchKeyAtom = atom(0);
 
 export const attendanceEntriesAtom = atom(
@@ -14,7 +21,8 @@ export const attendanceEntriesAtom = atom(
 		const worker = await get(currentWorkerAtom);
 		if (worker == null) return [];
 
-		const result = await fetchAttendanceEntries(worker.id);
+		const month = get(selectedMonthAtom);
+		const result = await fetchAttendanceEntriesForMonth(worker.id, month);
 		if (result.isErr()) throw result.error;
 		return result.value;
 	},
@@ -29,6 +37,23 @@ export const attendanceDayGroupsAtom = atom(
 
 export const refreshAttendanceLogAction = atom(null, (_get, set) => {
 	set(attendanceRefetchKeyAtom, (n) => n + 1);
+});
+
+// 前月へ移動
+export const previousMonthAction = atom(null, (get, set) => {
+	set(selectedMonthAtom, addMonths(get(selectedMonthAtom), -1));
+});
+
+// 翌月へ移動（未来月には進めない防御を action 側にも持つ）
+export const nextMonthAction = atom(null, (get, set) => {
+	const candidate = addMonths(get(selectedMonthAtom), 1);
+	if (isAfterMonth(candidate, currentMonthKey())) return;
+	set(selectedMonthAtom, candidate);
+});
+
+// 今月へリセット
+export const resetToCurrentMonthAction = atom(null, (_get, set) => {
+	set(selectedMonthAtom, currentMonthKey());
 });
 
 function groupByDate(entries: AttendanceEntry[]): AttendanceDayGroup[] {
